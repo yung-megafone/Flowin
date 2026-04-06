@@ -4,7 +4,7 @@
 // @version  	1.3
 // @description  Automagically copies the title and URL of a ticket for easy dissemination
 // @author   	Brando <capto.brando@pm.me>
-// @include  	http*://[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)*
+// @include  	http*://t.corp.amazon.com/*
 // @run-at   	document-end
 // @grant    	GM_setClipboard
 // @updateURL	https://raw.githubusercontent.com/yung-megafone/FulfillmentFlow/refs/heads/main/scripts/ClipIt.user.js
@@ -26,7 +26,7 @@
     	}
 
 
-    	var interactiveButtons = document.getElementsByClassName('[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)');
+    	var interactiveButtons = document.getElementsByClassName('interaction-buttons');
     	if (interactiveButtons.length > 0) {
         	console.log('Adding copy button');
 
@@ -53,7 +53,7 @@
  	* Copies the ticket title and URL to the clipboard when the copy button is clicked.
  	*/
 	function copyTicketDetailsToClipboard() {
-    	var text = document.getElementsByClassName('[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)')[0].children[0].innerText + ' {' + document.URL + '}';
+    	var text = document.getElementsByClassName('title-container')[0].children[0].innerText + ' {' + document.URL + '}';
 
 
     	// Copy text to clipboard
@@ -100,3 +100,4 @@
     	}, 2000);
 	}
 })();
+
