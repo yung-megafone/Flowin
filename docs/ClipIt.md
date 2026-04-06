@@ -18,7 +18,7 @@ ClipIt is a userscript designed to streamline ticketing workflows by **automatic
 2. Click the **Copy Ticket Info** button.
 3. The title and URL will be copied to the clipboard in the following format:
    ```
-   [REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)
+   Ticket Title {https://example-url.com/ticket}
    ```
 4. A toast notification will confirm the successful copy action.
 
