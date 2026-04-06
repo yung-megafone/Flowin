@@ -2,9 +2,9 @@
 // @name        AutoGen
 // @namespace   Yung-Megafone
 // @version     1.2-alpha.1
-// @description Generates dropdown suggestions for ticket titles and provides a [REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance) input field with optional tracking status and TAB autocomplete
+// @description Generates dropdown suggestions for ticket titles and provides a BEDN & CA input field with optional tracking status and TAB autocomplete
 // @author      Brando <capto.brando@pm.me>
-// @include     http*://[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)*
+// @include     http*://t.corp.amazon.com/*
 // @run-at      document-end
 // @grant       none
 // @updateURL   https://raw.githubusercontent.com/yung-megafone/FulfillmentFlow/refs/heads/main/scripts/AutoGen.user.js
@@ -22,7 +22,7 @@
             return; // Exit if panel is already present
         }
 
-        var titleInput = document.getElementById('[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)');
+        var titleInput = document.getElementById('ticket-title');
         if (titleInput) {
             console.log('Adding auto-suggestion panel');
 
@@ -32,10 +32,10 @@
             suggestionPanel.setAttribute('style', 'margin-top: 10px; background: #f4f4f4; padding: 10px; border-radius: 5px; border: 1px solid #ccc;');
 
             // Add dropdowns and input fields
-            suggestionPanel.appendChild(createDropdown('Location', ['[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)', '[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)', '[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)']));
-            suggestionPanel.appendChild(createDropdown('Issue', ['[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)', '[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)', '[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)', '[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)', '[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)', '[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)']));
-            suggestionPanel.appendChild(create[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)Input());
-            suggestionPanel.appendChild(create[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)Input());
+            suggestionPanel.appendChild(createDropdown('Location', ['ECC', 'Dock Door', 'Conveyor 12']));
+            suggestionPanel.appendChild(createDropdown('Issue', ['COMMS FAULT', 'OVERTEMP', 'JAMS', 'PHOTO-EYES', 'E-STOP', 'KICKOUTS']));
+            suggestionPanel.appendChild(createBEDNInput());
+            suggestionPanel.appendChild(createCAInput());
             suggestionPanel.appendChild(createTrackingCheckbox());
 
             // Add "Copy Title to Description" button
@@ -95,16 +95,16 @@
     }
 
     /**
-     * Creates an input field for the [REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance) number.
+     * Creates an input field for the BEDN number.
      */
-    function create[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)Input() {
+    function createBEDNInput() {
         var container = document.createElement('div');
         container.setAttribute('style', 'margin-bottom: 5px;');
 
         var input = document.createElement('input');
         input.setAttribute('type', 'text');
         input.setAttribute('maxlength', '6');
-        input.setAttribute('placeholder', 'Enter [REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)');
+        input.setAttribute('placeholder', 'Enter BEDN (6-digit)');
         input.setAttribute('style', 'width: 100%; padding: 5px; border-radius: 3px; border: 1px solid #ccc; text-align: center;');
 
         // Restrict input to numbers only
@@ -118,16 +118,16 @@
     }
 
     /**
-     * [REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)
+     * Creates an optional CA input field (e.g., "CA789").
      */
-    function create[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)Input() {
+    function createCAInput() {
         var container = document.createElement('div');
         container.setAttribute('style', 'margin-bottom: 5px;');
 
         var input = document.createElement('input');
         input.setAttribute('type', 'text');
         input.setAttribute('maxlength', '6');
-        input.setAttribute('placeholder', 'Enter [REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance) Number [REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)');
+        input.setAttribute('placeholder', 'Enter CA Number (e.g., CA789)');
         input.setAttribute('style', 'width: 100%; padding: 5px; border-radius: 3px; border: 1px solid #ccc; text-align: center;');
 
         // Format input properly
@@ -166,24 +166,24 @@
     }
 
     /**
-     * Updates the title input based on dropdown selections, [REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance), [REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance), and tracking checkbox.
+     * Updates the title input based on dropdown selections, BEDN, CA, and tracking checkbox.
      */
     function updateTitle() {
-        var titleInput = document.getElementById('[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)');
+        var titleInput = document.getElementById('ticket-title');
         if (!titleInput) return;
 
         var dropdowns = document.querySelectorAll('#auto_suggestion_panel select');
-        var [REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)Input = document.querySelector('#auto_suggestion_panel input[placeholder*="[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)"]');
-        var [REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)Input = document.querySelector('#auto_suggestion_panel input[placeholder*=[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)]');
+        var bednInput = document.querySelector('#auto_suggestion_panel input[placeholder*="BEDN"]');
+        var caInput = document.querySelector('#auto_suggestion_panel input[placeholder*="CA"]');
         var trackingCheckbox = document.getElementById('tracking_checkbox');
 
         var selectedLocation = dropdowns[0].value !== 'Select Location' ? dropdowns[0].value : '';
         var selectedIssue = dropdowns[1].value !== 'Select Issue' ? dropdowns[1].value : '';
-        var [REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)Value = [REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)Input.value.length === 6 ? `@ [REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance): ${[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)Input.value}` : '';
-        var [REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)Value = [REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)Input.value ? `[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)${[REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)Input.value}` : '';
+        var bednValue = bednInput.value.length === 6 ? `@ BEDN: ${bednInput.value}` : '';
+        var caValue = caInput.value ? `CA${caInput.value}` : '';
         var trackingTag = trackingCheckbox.checked ? "(TT for Tracking)" : '';
 
-        titleInput.value = [selectedLocation, selectedIssue, [REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)Value, [REDACTED – Reference: Confidential Information Policy §3.1](../README.md#confidentiality--compliance)Value, trackingTag].filter(Boolean).join(' - ');
+        titleInput.value = [selectedLocation, selectedIssue, bednValue, caValue, trackingTag].filter(Boolean).join(' - ');
     }
 
 })();
