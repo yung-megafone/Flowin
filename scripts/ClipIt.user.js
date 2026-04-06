@@ -3,12 +3,12 @@
 // @namespace	Yung-Megafone
 // @version  	1.3
 // @description  Automagically copies the title and URL of a ticket for easy dissemination
-// @author   	Brando <capto.brando@pm.me>
+// @author   	ym <https://t.me/yung_megafone>
 // @include  	http*://t.corp.amazon.com/*
 // @run-at   	document-end
 // @grant    	GM_setClipboard
-// @updateURL	https://raw.githubusercontent.com/yung-megafone/FulfillmentFlow/refs/heads/main/scripts/ClipIt.user.js
-// @downloadURL  https://raw.githubusercontent.com/yung-megafone/FulfillmentFlow/refs/heads/main/scripts/ClipIt.user.js
+// @updateURL	https://raw.githubusercontent.com/yung-megafone/ClipIt/refs/heads/main/scripts/ClipIt.user.js
+// @downloadURL  https://raw.githubusercontent.com/yung-megafone/ClipIt/refs/heads/main/scripts/ClipIt.user.js
 // ==/UserScript==
 
 
@@ -58,12 +58,12 @@
 
     	// Copy text to clipboard
     	GM_setClipboard(text, 'text');
-    	showToast("Copied data to clipboard!");
+    	showToast("Copied!");
 
 
     	// Provide visual feedback via tooltip
     	var button = document.getElementById('copy_ticket_details_btn');
-    	button.setAttribute('title', 'Copied data to your clipboard!!');
+    	button.setAttribute('title', 'Copied!');
 	}
 
 
