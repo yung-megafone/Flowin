@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	ClipIt
 // @namespace	Yung-Megafone
-// @version  	1.3
+// @version  	1.4
 // @description  Automagically copies the title and URL of a ticket for easy dissemination
 // @author   	ym <https://t.me/yung_megafone>
 // @include  	http*://t.corp.amazon.com/*
@@ -26,7 +26,7 @@
     	}
 
 
-    	var interactiveButtons = document.getElementsByClassName('interaction-buttons');
+    	var interactiveButtons = document.getElementsByClassName('flex-item-right');
     	if (interactiveButtons.length > 0) {
         	console.log('Adding copy button');
 
@@ -34,7 +34,7 @@
         	// Create the copy button
         	var button = document.createElement('button');
         	button.appendChild(document.createTextNode('Copy Ticket Info'));
-        	button.setAttribute('class', 'awsui-button awsui-button-variant-normal awsui-hover-child-icons awsui_button_vjswe_nb70g_157 awsui_variant-normal_vjswe_nb70g_205);')
+        	button.setAttribute('class', 'awsui-button awsui-button-variant-normal awsui-hover-child-icons awsui_button_vjswe_nb70g_157 awsui_variant-normal_vjswe_nb70g_205 awsui_child_18582_1g6fc_149);')
         	button.setAttribute('style', 'margin-right: 1rem;')
         	button.setAttribute('id', 'copy_ticket_details_btn');
         	button.addEventListener('click', copyTicketDetailsToClipboard, false);
@@ -100,4 +100,3 @@
     	}, 2000);
 	}
 })();
-
