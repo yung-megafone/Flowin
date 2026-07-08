@@ -43,4 +43,4 @@ This repository is licensed under the [MIT License](LICENSE).
 Contributions, suggestions, and improvements are welcome through issues or pull requests.
 
 ## Disclaimer
-ClipIt is a personal utility script designed for individual workflow convenience. It is not officially affiliated with, endorsed by, or supported by Amazon.
+This repository contains personal productivity tools developed for use with web-based workflow systems. It does not contain Amazon proprietary information, confidential documentation, credentials, API keys, or internal source code. These tools are unofficial and are not affiliated with or endorsed by Amazon.
