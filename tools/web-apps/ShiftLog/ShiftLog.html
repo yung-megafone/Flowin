@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Flowin ShiftLog</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+<style>
+:root{--bg:#020617;--panel:#0f172a;--panel2:#111827;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--shadow:0 18px 45px rgba(0,0,0,.38)}
+body.light{--bg:#f1f5f9;--panel:#ffffff;--panel2:#f8fafc;--border:#cbd5e1;--text:#0f172a;--muted:#64748b;--shadow:0 18px 45px rgba(15,23,42,.14)}
+*{scrollbar-width:thin;scrollbar-color:rgba(100,116,139,.6) transparent}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(100,116,139,.4);border-radius:999px}
+body{background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+.card{background:var(--panel);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:1rem;overflow:hidden}
+.card-title{background:linear-gradient(135deg,#0f172a,#1e293b);color:#e2e8f0;padding:.65rem .85rem;font-size:.75rem;font-weight:900;text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;justify-content:space-between}
+.field{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:.7rem;padding:.62rem .75rem;outline:none;width:100%}
+.field:focus{border-color:#60a5fa;box-shadow:0 0 0 2px rgba(37,99,235,.28)}
+.label{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;font-weight:900;color:var(--muted);margin-bottom:.3rem}
+.btn{border-radius:.75rem;padding:.65rem .85rem;font-size:.82rem;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:.45rem;transition:.15s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.08)}
+.btn-blue{background:#2563eb;color:#fff}.btn-green{background:#059669;color:#fff}.btn-slate{background:#1e293b;color:#e2e8f0;border:1px solid #334155}.btn-red{background:#991b1b;color:#fee2e2}
+.preview{white-space:pre-wrap;line-height:1.42;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+.hint{font-size:.74rem;color:var(--muted)}
+.watermark{position:fixed;right:1rem;bottom:.55rem;z-index:30;color:#64748b;font-size:.75rem;font-weight:800;cursor:pointer;user-select:none}
+.toast{position:fixed;right:1rem;bottom:2.5rem;background:#0f172a;color:#fff;border:1px solid #334155;border-radius:.8rem;padding:.75rem 1rem;box-shadow:var(--shadow);transform:translateY(120%);opacity:0;transition:.25s;z-index:60}
+.toast.show{transform:translateY(0);opacity:1}
+.menu{position:fixed;left:1rem;bottom:1rem;z-index:50}
+.menu-panel{width:min(92vw,360px);max-height:76vh;overflow:auto;background:rgba(2,6,23,.96);border:1px solid rgba(148,163,184,.24);box-shadow:0 24px 80px rgba(0,0,0,.58);backdrop-filter:blur(14px);border-radius:1.25rem;padding:.75rem;margin-bottom:.55rem}
+.menu-panel.hidden{display:none}
+.about{position:fixed;inset:0;background:rgba(2,6,23,.72);display:none;align-items:center;justify-content:center;z-index:70;padding:1rem}
+.about.show{display:flex}.about-card{max-width:560px;width:100%;background:var(--panel);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:1.25rem;overflow:hidden}
+@media (max-width:1000px){.layout{grid-template-columns:1fr!important}.preview-card{min-height:480px}}
+</style>
+</head>
+<body>
+<div class="max-w-[1800px] mx-auto p-3 md:p-4">
+  <div class="grid layout grid-cols-12 gap-4 min-h-[calc(100vh-2rem)]">
+    <section class="card col-span-5">
+      <div class="card-title"><span><i class="fas fa-keyboard mr-2 text-blue-400"></i>ShiftLog Inputs</span><span class="text-[10px] text-slate-400">FOS Module</span></div>
+      <div class="p-4 space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div><div class="label">Date</div><input id="dateInput" class="field" type="date"></div>
+          <div><div class="label">Shift</div><select id="shiftInput" class="field"><option>BHN</option><option>FHN</option><option>BHD</option><option>FHD</option></select></div>
+          <div><div class="label">Team / Area</div><input id="areaInput" class="field" placeholder="Flow / Inbound Dock" value="Flow / Inbound Dock"></div>
+        </div>
+        <div><div class="flex items-end justify-between gap-3"><div class="label">Shift Notes</div><button class="text-xs text-blue-400 font-bold" onclick="addBullet('notesInput')"><i class="fas fa-list-ul mr-1"></i>Bulletize</button></div><textarea id="notesInput" class="field min-h-[155px]" placeholder="Notes that may affect the following shift. Recurring issues, work being done, areas to watch, etc."></textarea></div>
+        <div><div class="flex items-end justify-between gap-3"><div class="label">Open Tickets</div><button class="text-xs text-blue-400 font-bold" onclick="addBullet('ticketsInput')"><i class="fas fa-list-ul mr-1"></i>Bulletize</button></div><textarea id="ticketsInput" class="field min-h-[115px]" placeholder="Paste open ticket links or ticket summaries here. One per line works best."></textarea></div>
+        <div class="grid grid-cols-2 gap-3"><div><div class="label">Radios</div><input id="radiosInput" class="field" type="number" min="0" placeholder="Count"></div><div><div class="label">Laptops</div><input id="laptopsInput" class="field" type="number" min="0" placeholder="Count"></div></div>
+        <div><div class="label">Friendly Message</div><div class="flex gap-2"><input id="messageInput" class="field" placeholder="Good luck, stay safe, and may gravity remain operational."><button class="btn btn-slate" onclick="randomMessage()" title="Random message"><i class="fas fa-dice"></i></button></div></div>
+        <div><div class="label">Sign-off</div><input id="signoffInput" class="field" placeholder="— Flow PG"></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 pt-2"><button class="btn btn-green" onclick="copyPreview()"><i class="fas fa-copy"></i>Copy for Slack</button><button class="btn btn-blue" onclick="saveDraft()"><i class="fas fa-save"></i>Save Draft</button><button class="btn btn-red" onclick="clearForm()"><i class="fas fa-trash"></i>Clear</button></div>
+        <p class="hint"><i class="fas fa-info-circle mr-1 text-blue-400"></i>Everything stays local in this browser unless you copy/export it yourself.</p>
+      </div>
+    </section>
+    <section class="card col-span-7 preview-card">
+      <div class="card-title"><span><i class="fas fa-eye mr-2 text-emerald-400"></i>Slack Preview</span><div class="flex gap-2"><button class="text-[11px] text-slate-300 hover:text-white font-bold" onclick="copyPreview()"><i class="fas fa-copy mr-1"></i>Copy</button><button class="text-[11px] text-slate-300 hover:text-white font-bold" onclick="toggleCompact()"><i class="fas fa-compress mr-1"></i>Compact</button></div></div>
+      <div class="p-4 h-[calc(100%-42px)] flex flex-col"><div id="previewOutput" class="preview flex-1 overflow-auto bg-[color:var(--panel2)] border border-[color:var(--border)] rounded-xl p-4 text-[15px]"></div></div>
+    </section>
+  </div>
+</div>
+<div class="menu"><div id="menuPanel" class="menu-panel hidden space-y-3"><div class="text-xs uppercase tracking-wider font-black text-slate-400">Settings</div><button class="btn btn-slate w-full" onclick="toggleTheme()"><i class="fas fa-adjust"></i><span id="themeText">Toggle Light Mode</span></button><button class="btn btn-slate w-full" onclick="useToday()"><i class="fas fa-calendar-day"></i>Use Today</button><button class="btn btn-slate w-full" onclick="loadDraft()"><i class="fas fa-rotate-left"></i>Reload Saved Draft</button><button class="btn btn-slate w-full" onclick="openAbout()"><i class="fas fa-circle-info"></i>About / Version</button><button class="btn btn-slate w-full" onclick="toggleMenu()"><i class="fas fa-chevron-left"></i>Close Menu</button></div><button class="btn btn-slate h-11 w-11 rounded-full p-0" onclick="toggleMenu()" title="Settings"><i class="fas fa-bars"></i></button></div>
+<div class="watermark" onclick="openAbout()">branasen</div><div id="toast" class="toast">Copied.</div>
+<div id="aboutModal" class="about" onclick="if(event.target.id==='aboutModal')closeAbout()"><div class="about-card"><div class="card-title"><span><i class="fas fa-clipboard-list mr-2 text-blue-400"></i>ShiftLog</span><button onclick="closeAbout()" class="text-slate-400 hover:text-white"><i class="fas fa-xmark"></i></button></div><div class="p-5 space-y-3 text-sm"><h2 class="text-2xl font-black">Flowin ShiftLog v1</h2><p class="text-[color:var(--muted)]">A client-side handoff note generator for Flow Team shift communication.</p><div class="rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)] p-3"><div class="font-black mb-1">Credits</div><p>Design language inspired by <strong>IBCL v2</strong>.</p><p>Designed and developed by <strong>branasen</strong> for the Flowin Operations Suite.<br>GitHub: <strong>yung-megafone</strong>.</p></div><div class="rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)] p-3"><div class="font-black mb-1">Privacy</div><p>No data is transmitted. Drafts are saved locally in browser storage. Output only leaves the page when you copy it for Slack.</p></div></div></div></div>
+<script>
+const STORAGE_KEY='flowin_shiftlog_v1';
+const messages=["Good luck, stay safe, and may gravity remain operational.","May your CrossBelt stay green and your recircs stay low.","Have a smooth shift — hopefully my problems do not become yours.","Stay safe and keep the blue lights away.","May your PMTs behave and your tickets close quickly.","Good luck. If anything looks cursed, it probably is."];
+function qs(id){return document.getElementById(id)}
+function fmtDate(iso){if(!iso)return "";const [y,m,d]=iso.split("-");return `${m}/${d}/${y}`}
+function linesToBullets(text){return (text||"").split(/\n+/).map(x=>x.trim()).filter(Boolean).map(x=>x.startsWith("•")?x:`• ${x}`).join("\n")}
+function buildOutput(){const date=fmtDate(qs('dateInput').value),shift=qs('shiftInput').value,area=qs('areaInput').value.trim(),notes=linesToBullets(qs('notesInput').value),tickets=linesToBullets(qs('ticketsInput').value),radios=qs('radiosInput').value,laptops=qs('laptopsInput').value,msg=qs('messageInput').value.trim(),sign=qs('signoffInput').value.trim();let out=`*Flow Handoff*\n`;out+=`Date: ${date||"—"} | Shift: ${shift||"—"}`;if(area)out+=` | Area: ${area}`;out+=`\n\n`;out+=`*Shift Notes*\n${notes||"• No major notes recorded."}\n\n`;out+=`*Open Tickets*\n${tickets||"• No open tickets listed."}\n\n`;out+=`*Equipment*\nRadios: ${radios||"—"}\nLaptops: ${laptops||"—"}\n\n`;if(msg)out+=`${msg}\n\n`;if(sign)out+=`${sign}`;return out.trim()}
+function updatePreview(){qs('previewOutput').textContent=buildOutput();saveDraft(false)}
+function copyPreview(){const text=buildOutput();if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(()=>toast("Copied for Slack."))}else{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast("Copied for Slack.")}}
+function toast(msg){const t=qs('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function saveDraft(show=true){const data={date:qs('dateInput').value,shift:qs('shiftInput').value,area:qs('areaInput').value,notes:qs('notesInput').value,tickets:qs('ticketsInput').value,radios:qs('radiosInput').value,laptops:qs('laptopsInput').value,message:qs('messageInput').value,signoff:qs('signoffInput').value,theme:document.body.classList.contains('light')?'light':'dark'};localStorage.setItem(STORAGE_KEY,JSON.stringify(data));if(show)toast("Draft saved.")}
+function loadDraft(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");if(d.date)qs('dateInput').value=d.date;else useToday(false);qs('shiftInput').value=d.shift||'BHN';qs('areaInput').value=d.area||'Flow / Inbound Dock';qs('notesInput').value=d.notes||'';qs('ticketsInput').value=d.tickets||'';qs('radiosInput').value=d.radios||'';qs('laptopsInput').value=d.laptops||'';qs('messageInput').value=d.message||'';qs('signoffInput').value=d.signoff||'';document.body.classList.toggle('light',d.theme==='light')}catch(e){useToday(false)}updateThemeText();updatePreview()}
+function clearForm(){if(!confirm("Clear the current handoff draft?"))return;qs('notesInput').value='';qs('ticketsInput').value='';qs('radiosInput').value='';qs('laptopsInput').value='';qs('messageInput').value='';qs('signoffInput').value='';updatePreview();toast("Draft cleared.")}
+function useToday(update=true){const d=new Date();qs('dateInput').value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;if(update)updatePreview()}
+function addBullet(id){qs(id).value=linesToBullets(qs(id).value);updatePreview()}
+function randomMessage(){qs('messageInput').value=messages[Math.floor(Math.random()*messages.length)];updatePreview()}
+function toggleTheme(){document.body.classList.toggle('light');updateThemeText();updatePreview()}
+function updateThemeText(){qs('themeText').textContent=document.body.classList.contains('light')?'Toggle Dark Mode':'Toggle Light Mode'}
+function toggleMenu(){qs('menuPanel').classList.toggle('hidden')}
+function openAbout(){qs('aboutModal').classList.add('show')}
+function closeAbout(){qs('aboutModal').classList.remove('show')}
+function toggleCompact(){const p=qs('previewOutput');p.classList.toggle('text-[15px]');p.classList.toggle('text-[13px]')}
+document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('input,textarea,select').forEach(el=>el.addEventListener('input',updatePreview));loadDraft();if(!qs('dateInput').value)useToday(false);updatePreview()});
+</script>
+</body>
+</html>
