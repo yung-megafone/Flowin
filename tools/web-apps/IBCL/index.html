@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<!--
+================================================================================
+IBCL - Inbound Carton Loss
+--------------------------------------------------------------------------------
+Purpose:
+  A lightweight single-file dashboard for tracking downtime events and estimating
+  carton loss against goal/performance baselines.
+
+Intent:
+  Keep this file readable enough that future-me can patch it quickly before,
+  during, or after shift without spelunking through unmarked spaghetti.
+
+Safety / confidentiality note:
+  This file should not contain credentials, tokens, internal API keys, private
+  screenshots, or hardcoded confidential values. Runtime entries may still be
+  work-sensitive depending on what the user types into the fields.
+================================================================================
+-->
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IBCL - Inbound Carton Loss</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+<link href="css/ibcl.css" rel="stylesheet"/>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen font-sans pb-20 relative ibcl-hints-hidden">
+<div class="max-w-[1400px] mx-auto p-4 md:p-6">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- Top dashboard grid: left controls, right metrics/graph. Event log stays below this grid. -->
+<!-- Calculator and Inputs Panel -->
+<div class="lg:col-span-7 space-y-4">
+<!--
+                ====================================================================
+                SECTION: EVENT INPUT + LIVE METRICS
+                --------------------------------------------------------------------
+                Left side: shift goal, shift hours, prior 15-minute cartons, ticket,
+                issue, and start button.
+
+                Right side: live preview derived from currently selected affected
+                areas. This should stay fast and simple because it is used while
+                actively operating the desk.
+                ====================================================================
+                -->
+<!-- Main Calculator Card -->
+<div class="bg-white rounded-2xl shadow-md p-5 border-t-4 border-blue-600 overflow-hidden">
+<div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+<div>
+<h1 class="text-xl font-bold text-slate-900" data-i18n="calc_title">Inbound Dock Carton Loss
+                                Calculator</h1>
+<p class="text-xs text-slate-400 mt-0.5" data-i18n="calc_subtitle">Set the shift numbers,
+                                select the affected area, then start the event.</p>
+</div>
+<span class="text-xs font-mono bg-slate-200 px-2 py-1 rounded">V2</span>
+</div>
+<div class="grid grid-cols-1 gap-4 items-stretch">
+<!-- Input Stack -->
+<div class="space-y-3">
+<div class="grid grid-cols-3 gap-3">
+<div>
+<label class="block text-xs font-bold text-slate-500 uppercase mb-1" data-i18n="pid_goal_label">PID Goal</label>
+<input class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" id="pidGoal" oninput="calculateLivePreview()" placeholder="60000" type="number" value=""/>
+</div>
+<div>
+<label class="block text-xs font-bold text-slate-500 uppercase mb-1" data-i18n="shift_hours_label">Shift Hours</label>
+<input class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" id="shiftHours" oninput="calculateLivePreview()" placeholder="10" type="number" value="10"/>
+</div>
+<div>
+<label class="block text-xs font-bold text-slate-500 uppercase mb-1" data-i18n="performance_15_label">Prev. 15 Min Cartons</label>
+<input class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" id="perf15" oninput="calculateLivePreview()" placeholder="1300" type="number" value=""/>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-xs font-bold text-slate-500 uppercase mb-1" data-i18n="ticket_label">Ticket (paste link)</label>
+<input class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" data-i18n-placeholder="ticket_placeholder" id="ticketInput" oninput="handleDetailsGate()" placeholder="Paste ticket info here..." type="text"/>
+</div>
+<div>
+<label class="block text-xs font-bold text-slate-500 uppercase mb-1" data-i18n="issue_label">Issue</label>
+<input class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" data-i18n-placeholder="issue_placeholder" id="issueInput" placeholder="e.g. PMT belt jam" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-3 items-end">
+<div>
+<label class="block text-xs font-bold text-slate-500 uppercase mb-1" data-i18n="start_time_label">Start time</label>
+<input class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm font-mono" id="startTimeInput" type="time"/>
+</div>
+<button class="col-span-2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition shadow flex items-center justify-center gap-2 text-base" id="addEventBtn" onclick="startEvent()">
+<i class="fas fa-play"></i> <span data-i18n="start_btn">START — IT'S DOWN NOW</span>
+</button>
+</div>
+<button class="hidden w-full bg-slate-300 hover:bg-slate-400 text-slate-700 font-bold py-2 px-4 rounded-lg transition" id="cancelEditBtn" onclick="cancelEdit()">
+<span data-i18n="cancel_btn">Cancel</span>
+</button>
+</div>
+<!-- Live Metrics Panel -->
+</div>
+<p class="text-[11px] text-slate-400 leading-snug mt-3">
+<i class="fas fa-info-circle"></i> <span data-i18n="start_hint">Pick the affected area(s) below,
+                            paste the ticket, then hit Start. When the line is back up, tap Mark Fixed in the log and
+                            set the end time — the loss fills in automatically.</span>
+</p>
+<div class="hidden mt-2 p-2 bg-red-100 text-red-700 text-xs rounded border border-red-200 text-center font-semibold" id="errorMsg">
+</div>
+<div class="mt-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 text-xs text-slate-500" id="locationGateHint">
+<i class="fas fa-arrow-up-wide-short mr-1 text-blue-500"></i><span data-i18n="location_gate_hint">Add ticket details above to unlock affected-area selection.</span>
+</div>
+</div>
+<div class="hidden space-y-4" id="affectedAreaGate">
+<div class="bg-slate-900 text-white rounded-xl shadow-md overflow-hidden border border-slate-700">
+<div class="p-3 flex flex-wrap items-center justify-between gap-3">
+<div>
+<div class="font-bold text-base"><i class="fas fa-sitemap mr-2 text-orange-400"></i><span data-i18n="cb_label">CrossBelt / CB</span></div>
+<div class="text-[11px] text-slate-400" data-i18n="cb_hint">Use this when CrossBelt is stopped. It selects every PID-connected area plus both Pre-Sort lines.</div>
+</div>
+<label class="flex items-center gap-2 cursor-pointer bg-slate-800 border border-slate-700 rounded-full px-3 py-2">
+<input id="cb-check" onchange="toggleCrossBelt(this)" type="checkbox"/>
+<span class="font-bold text-sm" data-i18n="cb_checkbox_label">CB Down - Select All Flow</span>
+</label>
+</div>
+</div>
+<!--
+                ====================================================================
+                SECTION: AFFECTED AREA SELECTION - PID / PMT / DD
+                --------------------------------------------------------------------
+                These checkboxes use weighted shares of the inbound dock. The math
+                expects normal PID-connected areas to store a numeric data-weight.
+                Pre-Sort is handled separately below because it is not PID-connected.
+                ====================================================================
+                -->
+<!-- PID Selection Card -->
+<div class="bg-white rounded-xl shadow-md overflow-hidden flex-1">
+<div class="bg-slate-100 border-b border-slate-200 p-3 flex items-center gap-3">
+<input id="main-check" onchange="toggleAll(this)" type="checkbox"/>
+<label class="font-bold text-base cursor-pointer select-none text-slate-800" data-i18n="inbound_pids_label" for="main-check">Inbound Pids (Select All)</label>
+</div>
+<div class="p-4 overflow-y-auto max-h-[350px]">
+<div class="flex flex-col gap-4">
+<!-- West Side Group -->
+<div class="border-l-4 border-blue-200 pl-4">
+<div class="flex items-center gap-2 mb-2">
+<input class="sub-heading" id="west-check" onchange="toggleGroup(this, 'west-group')" type="checkbox"/>
+<label class="font-bold text-blue-900 cursor-pointer" data-i18n="west_side_label" for="west-check">West Side</label>
+</div>
+<div class="space-y-3 pl-1" id="west-group">
+<!-- PID 1 Block -->
+<div class="pid-block">
+<div class="flex items-center gap-2 mb-1">
+<input class="sub-sub-heading" id="pid1-check" onchange="toggleGroup(this, 'pid1-options')" type="checkbox"/>
+<label class="font-semibold text-sm text-slate-700" for="pid1-check"><span data-i18n="pid_label">PID</span> 1</label>
+</div>
+<div class="ml-5 space-y-1" id="pid1-options">
+<!-- PMT 1 -->
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="option-check" data-id="PMT 1" data-weight="0.08333333333333333" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm text-slate-600 name-label" data-i18n="pmt_label">PMT</span> 1
+                                            </label>
+<!-- PID 1 Injection -->
+<div class="ml-2 pt-1 border-l pl-3">
+<div class="font-medium text-xs text-slate-500" data-i18n="pid_injection_label">PID Injection 1</div>
+<!-- DD 222 -->
+<label class="flex items-center gap-2 cursor-pointer mt-1">
+<input class="option-check" data-id="DD 222" data-weight="0.041666666666666664" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm text-slate-600 name-label" data-i18n="dd_label">DD</span> 222
+                                                </label>
+<!-- DD 221 -->
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="option-check" data-id="DD 221" data-weight="0.041666666666666664" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm text-slate-600 name-label" data-i18n="dd_label">DD</span> 221
+                                                </label>
+</div>
+</div>
+</div>
+<!-- PID 2 Block -->
+<div class="pid-block">
+<div class="flex items-center gap-2 mb-1">
+<input class="sub-sub-heading" id="pid2-check" onchange="toggleGroup(this, 'pid2-options')" type="checkbox"/>
+<label class="font-semibold text-sm text-slate-700" for="pid2-check"><span data-i18n="pid_label">PID</span> 2</label>
+</div>
+<div class="ml-5 space-y-1" id="pid2-options">
+<!-- PMT 2 -->
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="option-check" data-id="PMT 2" data-weight="0.08333333333333333" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm text-slate-600 name-label" data-i18n="pmt_label">PMT</span> 2
+                                            </label>
+<!-- PID 2 Injection -->
+<div class="ml-2 pt-1 border-l pl-3">
+<div class="font-medium text-xs text-slate-500" data-i18n="pid_injection_label">PID Injection 2</div>
+<!-- DD 220 -->
+<label class="flex items-center gap-2 cursor-pointer mt-1">
+<input class="option-check" data-id="DD 220" data-weight="0.041666666666666664" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm text-slate-600 name-label" data-i18n="dd_label">DD</span> 220
+                                                </label>
+<!-- DD 219 -->
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="option-check" data-id="DD 219" data-weight="0.041666666666666664" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm text-slate-600 name-label" data-i18n="dd_label">DD</span> 219
+                                                </label>
+</div>
+</div>
+</div>
+<!-- PID 3 Block -->
+<div class="pid-block">
+<div class="flex items-center gap-2 mb-1">
+<input class="sub-sub-heading" id="pid3-check" onchange="toggleGroup(this, 'pid3-options')" type="checkbox"/>
+<label class="font-semibold text-sm text-slate-700" for="pid3-check"><span data-i18n="pid_label">PID</span> 3</label>
+</div>
+<div class="ml-5 space-y-1" id="pid3-options">
+<!-- PMT 3 -->
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="option-check" data-id="PMT 3" data-weight="0.08333333333333333" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm text-slate-600 name-label" data-i18n="pmt_label">PMT</span> 3
+                                            </label>
+<!-- PID 3 Injection -->
+<div class="ml-2 pt-1 border-l pl-3">
+<div class="font-medium text-xs text-slate-500" data-i18n="pid_injection_label">PID Injection 3</div>
+<!-- DD 218 -->
+<label class="flex items-center gap-2 cursor-pointer mt-1">
+<input class="option-check" data-id="DD 218" data-weight="0.041666666666666664" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm text-slate-600 name-label" data-i18n="dd_label">DD</span> 218
+                                                </label>
+<!-- DD 217 -->
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="option-check" data-id="DD 217" data-weight="0.041666666666666664" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm text-slate-600 name-label" data-i18n="dd_label">DD</span> 217
+                                                </label>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- East Side Group -->
+<div class="border-l-4 border-blue-200 pl-4">
+<div class="flex items-center gap-2 mb-2">
+<input class="sub-heading" id="east-check" onchange="toggleGroup(this, 'east-group')" type="checkbox"/>
+<label class="font-bold text-blue-900 cursor-pointer" data-i18n="east_side_label" for="east-check">East Side</label>
+</div>
+<div class="space-y-3 pl-1" id="east-group">
+<!-- PID 4 Block -->
+<div class="pid-block">
+<div class="flex items-center gap-2 mb-1">
+<input class="sub-sub-heading" id="pid4-check" onchange="toggleGroup(this, 'pid4-options')" type="checkbox"/>
+<label class="font-semibold text-sm text-slate-700" for="pid4-check"><span data-i18n="pid_label">PID</span> 4</label>
+</div>
+<div class="ml-5 space-y-1" id="pid4-options">
+<!-- PMT 4 -->
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="option-check" data-id="PMT 4" data-weight="0.08333333333333333" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm text-slate-600 name-label" data-i18n="pmt_label">PMT</span> 4
+                                            </label>
+<!-- PID 4 Injection -->
+<div class="ml-2 pt-1 border-l pl-3">
+<div class="font-medium text-xs text-slate-500" data-i18n="pid_injection_label">PID Injection 4</div>
+<!-- DD 216 -->
+<label class="flex items-center gap-2 cursor-pointer mt-1">
+<input class="option-check" data-id="DD 216" data-weight="0.041666666666666664" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm text-slate-600 name-label" data-i18n="dd_label">DD</span> 216
+                                                </label>
+<!-- DD 215 -->
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="option-check" data-id="DD 215" data-weight="0.041666666666666664" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm text-slate-600 name-label" data-i18n="dd_label">DD</span> 215
+                                                </label>
+</div>
+</div>
+</div>
+<!-- PID 5 Block -->
+<div class="pid-block">
+<div class="flex items-center gap-2 mb-1">
+<input class="sub-sub-heading" id="pid5-check" onchange="toggleGroup(this, 'pid5-options')" type="checkbox"/>
+<label class="font-semibold text-sm text-slate-700" for="pid5-check"><span data-i18n="pid_label">PID</span> 5</label>
+</div>
+<div class="ml-5 space-y-1" id="pid5-options">
+<!-- PMT 5 -->
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="option-check" data-id="PMT 5" data-weight="0.08333333333333333" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm text-slate-600 name-label" data-i18n="pmt_label">PMT</span> 5
+                                            </label>
+<!-- PID 5 Injection -->
+<div class="ml-2 pt-1 border-l pl-3">
+<div class="font-medium text-xs text-slate-500" data-i18n="pid_injection_label">PID Injection 5</div>
+<!-- DD 214 -->
+<label class="flex items-center gap-2 cursor-pointer mt-1">
+<input class="option-check" data-id="DD 214" data-weight="0.041666666666666664" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm text-slate-600 name-label" data-i18n="dd_label">DD</span> 214
+                                                </label>
+<!-- DD 213 -->
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="option-check" data-id="DD 213" data-weight="0.041666666666666664" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm text-slate-600 name-label" data-i18n="dd_label">DD</span> 213
+                                                </label>
+</div>
+</div>
+</div>
+<!-- PID 6 Block -->
+<div class="pid-block">
+<div class="flex items-center gap-2 mb-1">
+<input class="sub-sub-heading" id="pid6-check" onchange="toggleGroup(this, 'pid6-options')" type="checkbox"/>
+<label class="font-semibold text-sm text-slate-700" for="pid6-check"><span data-i18n="pid_label">PID</span> 6</label>
+</div>
+<div class="ml-5 space-y-1" id="pid6-options">
+<!-- PMT 6 -->
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="option-check" data-id="PMT 6" data-weight="0.08333333333333333" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm text-slate-600 name-label" data-i18n="pmt_label">PMT</span> 6
+                                            </label>
+<!-- PID 6 Injection -->
+<div class="ml-2 pt-1 border-l pl-3">
+<div class="font-medium text-xs text-slate-500" data-i18n="pid_injection_label">PID Injection 6</div>
+<!-- DD 212 -->
+<label class="flex items-center gap-2 cursor-pointer mt-1">
+<input class="option-check" data-id="DD 212" data-weight="0.041666666666666664" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm text-slate-600 name-label" data-i18n="dd_label">DD</span> 212
+                                                </label>
+<!-- DD 211 -->
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="option-check" data-id="DD 211" data-weight="0.041666666666666664" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm text-slate-600 name-label" data-i18n="dd_label">DD</span> 211
+                                                </label>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--
+                ====================================================================
+                SECTION: AFFECTED AREA SELECTION - PRE-SORT
+                --------------------------------------------------------------------
+                There are only two selectable Pre-Sort lines: West and East.
+                Each one represents 1/18 of the inbound-line performance basis.
+                Goal basis remains the user-provided floor math:
+                    PID Goal ÷ 9 ÷ 18 = one Pre-Sort hourly goal
+                ====================================================================
+                -->
+<!-- Pre-Sort Selection Card -->
+<div class="bg-white rounded-xl shadow-md overflow-hidden flex-1 border-t-4 border-purple-600">
+<div class="bg-slate-100 border-b border-slate-200 p-3 flex items-center gap-3">
+<input id="presort-check" onchange="toggleGroup(this, 'presort-group')" type="checkbox"/>
+<label class="font-bold text-base cursor-pointer select-none text-slate-800" data-i18n="presort_label" for="presort-check">Pre-Sort</label>
+</div>
+<div class="p-4">
+<p class="text-[11px] text-slate-400 leading-snug mb-3">
+<i class="fas fa-calculator"></i> <span data-i18n="presort_hint">Pre-Sort has only two
+                                selectable lines: West and East. Each one counts as 1 of the 18 inbound lines. Hourly
+                                goal per pre-sort line = PID Goal ÷ 9 ÷ 18.</span>
+</p>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="presort-group">
+<label class="flex items-center gap-2 cursor-pointer rounded-lg border border-purple-200 bg-purple-50 px-3 py-2">
+<input class="option-check" data-id="West Pre-Sort" data-mode="presort" data-weight="0" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm font-semibold text-purple-900">West Pre-Sort</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer rounded-lg border border-purple-200 bg-purple-50 px-3 py-2">
+<input class="option-check" data-id="East Pre-Sort" data-mode="presort" data-weight="0" onchange="calculateLivePreview()" type="checkbox"/>
+<span class="text-sm font-semibold text-purple-900">East Pre-Sort</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-5 space-y-4"><div class="rounded-2xl bg-slate-900 text-white p-4 shadow-inner flex flex-col justify-between min-h-[220px]">
+<div class="flex items-start justify-between gap-3 mb-3">
+<div>
+<div class="text-[11px] uppercase tracking-wide text-slate-400 font-bold" data-i18n="live_metrics_label">Live Preview</div>
+<div class="text-sm text-slate-300 flex items-center gap-2 flex-wrap">
+<span id="metricBasis"></span>
+<span data-i18n="metric_waiting">Select an area to preview loss.</span>
+</div>
+</div>
+<div class="h-9 w-9 rounded-full bg-blue-600 flex items-center justify-center shadow">
+<i class="fas fa-chart-line text-sm"></i>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2 text-center">
+<div class="result-box bg-slate-800 border border-slate-700">
+<div class="text-[10px] uppercase text-slate-400 font-bold" data-i18n="selected_label">Selected</div>
+<div class="text-lg font-black" id="metricSelected">0</div>
+</div>
+<div class="result-box bg-slate-800 border border-slate-700">
+<div class="text-[10px] uppercase text-slate-400 font-bold" data-i18n="share_label">
+                                        Share</div>
+<div class="text-lg font-black" id="metricWeight">0%</div>
+</div>
+<div class="result-box bg-blue-950/70 border border-blue-800">
+<div class="text-[10px] uppercase text-blue-300 font-bold" data-i18n="hour_goal_label">1 Hr Goal</div>
+<div class="text-lg font-black" id="metricGoalHour">0</div>
+</div>
+<div class="result-box bg-yellow-950/70 border border-yellow-800">
+<div class="text-[10px] uppercase text-yellow-300 font-bold" data-i18n="perf_basis_label">15m Perf</div>
+<div class="text-lg font-black" id="metricPerf15">0</div>
+</div>
+</div>
+<div class="mt-3 rounded-xl bg-gradient-to-r from-red-700 to-orange-600 p-3 shadow">
+<div class="text-[10px] uppercase font-bold text-red-100" data-i18n="est_15_label">
+                                    Estimated 15 Min Loss</div>
+<div class="text-3xl font-black tracking-tight" id="metricEst15">0</div>
+</div>
+<div class="mt-3 grid grid-cols-2 gap-2">
+<div class="rounded-xl bg-red-950/70 border border-red-800 p-3">
+<div class="text-[10px] uppercase font-bold text-red-200" data-i18n="active_loss_label">Active Loss Now</div>
+<div class="text-2xl font-black tracking-tight" id="metricActiveLoss">0</div>
+</div>
+<div class="rounded-xl bg-emerald-950/70 border border-emerald-800 p-3">
+<div class="text-[10px] uppercase font-bold text-emerald-200" data-i18n="total_loss_short_label">Total Loss</div>
+<div class="text-2xl font-black tracking-tight" id="metricTotalLoss">0</div>
+</div>
+</div>
+<div class="mt-3 grid grid-cols-2 gap-2">
+<div class="rounded-xl bg-slate-800 border border-slate-700 p-3">
+<div class="text-[10px] uppercase font-bold text-slate-400" data-i18n="worst_hit_label">Worst Hit</div>
+<div class="text-base font-black tracking-tight truncate" id="metricWorstHit">—</div>
+<div class="text-[11px] text-slate-400" id="metricWorstHitLoss">0 loss</div>
+</div>
+<div class="rounded-xl bg-slate-800 border border-slate-700 p-3">
+<div class="text-[10px] uppercase font-bold text-slate-400" data-i18n="goal_percent_label">% To Goal</div>
+<div class="text-2xl font-black tracking-tight" id="metricGoalPercent">0%</div>
+</div>
+<div class="rounded-xl bg-slate-800 border border-slate-700 p-3">
+<div class="text-[10px] uppercase font-bold text-slate-400" data-i18n="avg_1hr_loss_label">Avg 1Hr Loss</div>
+<div class="text-2xl font-black tracking-tight" id="metricAvg1HrLoss">0</div>
+</div>
+<div class="rounded-xl bg-slate-800 border border-slate-700 p-3">
+<div class="text-[10px] uppercase font-bold text-slate-400" data-i18n="avg_15m_loss_label">Avg 15m Loss</div>
+<div class="text-2xl font-black tracking-tight" id="metricAvg15Loss">0</div>
+</div>
+</div>
+<div class="mt-3 rounded-xl bg-slate-800 border border-slate-700 p-3">
+<div class="flex items-center justify-between gap-2 mb-2">
+<div class="text-[10px] uppercase font-bold text-slate-400" data-i18n="location_impact_label">Location Impact</div>
+<div class="text-[10px] uppercase font-bold text-slate-500" data-i18n="top_three_label">Top 3</div>
+</div>
+<div class="space-y-1 text-xs text-slate-300" id="metricLocationImpactList">—</div>
+</div>
+<div class="mt-3 rounded-xl bg-slate-800 border border-slate-700 p-3">
+<div class="flex items-center justify-between gap-3">
+<div>
+<div class="text-[10px] uppercase font-bold text-slate-400" data-i18n="throughput_label">Manual Throughput Pace</div>
+<div class="text-2xl font-black tracking-tight"><span id="metricThroughputPace">0</span><span class="text-xs text-slate-400 ml-1">/hr</span></div>
+</div>
+<div class="text-right">
+<div class="text-[10px] uppercase font-bold text-slate-400" data-i18n="goal_delta_label">Vs Goal</div>
+<div class="text-xl font-black"><i class="fas fa-minus ibcl-throughput-arrow flat" id="metricThroughputArrow"></i> <span id="metricThroughputDelta">0</span></div>
+</div>
+</div>
+</div>
+</div>
+<div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 graph-placeholder-grid">
+<div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+<div>
+<h3 class="font-bold text-slate-800 flex items-center gap-2">
+<i class="fas fa-chart-area text-purple-500"></i>
+<span data-i18n="graph_title">Graph View Placeholder</span>
+</h3>
+<p class="text-xs text-slate-500 mt-1 max-w-3xl" data-i18n="graph_hint">
+                                Reserved for a future pace/projection view. This should compare goal pace,
+                                rolling 15-minute performance readings, logged losses, and any official processed-carton
+                                count if you find a clean source later.
+                            </p>
+</div>
+<span class="text-[10px] uppercase tracking-wide font-black bg-slate-200 text-slate-600 px-2 py-1 rounded-full" data-i18n="not_wired_label">Not Wired Yet</span>
+</div>
+<svg aria-label="Projection sketch" class="ibcl-projection-svg" id="projectionSvg" preserveaspectratio="none" viewbox="0 0 600 190">
+<line class="ibcl-graph-axis" x1="35" x2="575" y1="155" y2="155"></line>
+<line class="ibcl-graph-axis" x1="35" x2="35" y1="25" y2="155"></line>
+<line class="ibcl-graph-zero" id="graphZeroLine" x1="35" x2="575" y1="95" y2="95"></line>
+<path class="ibcl-graph-line ibcl-graph-goal" d="M35 130 L575 70" id="graphGoalLine"></path>
+<path class="ibcl-graph-line ibcl-graph-perf" d="M35 135 L575 85" id="graphPerfLine"></path>
+<path class="ibcl-graph-line ibcl-graph-loss" d="M35 135 L575 95" id="graphLossLine"></path>
+<path class="ibcl-graph-history" d="" id="graphHistoryLine"></path>
+<path class="ibcl-graph-current" d="" id="graphCurrentLine"></path>
+<g id="graphHistoryDots"></g>
+<text data-i18n="projection_sketch_label" fill="currentColor" font-size="11" opacity=".7" x="42" y="22">projection sketch</text>
+</svg>
+<div class="ibcl-graph-controls">
+<div class="text-[11px] text-slate-500 font-semibold"><span data-i18n="graph_history_status_label">History samples:</span> <span id="graphHistoryCount">0</span> · <span id="graphHistoryLast">—</span></div>
+<div class="flex gap-2 flex-wrap items-center">
+<label class="text-[11px] font-bold text-slate-500 flex items-center gap-1"><span data-i18n="shift_preset_label">Shift</span>
+<select class="ibcl-graph-select" id="shiftPresetSelect" onchange="setProjectionShiftPreset(this.value)">
+<option data-i18n="dayshift_option" value="days">Days</option>
+<option data-i18n="nightshift_option" selected value="nights">Nights</option>
+</select></label>
+<label class="text-[11px] font-bold text-slate-500 flex items-center gap-1"><input id="shiftOtToggle" onchange="setProjectionOT(this.checked)" type="checkbox"/><span data-i18n="ot_option_label">O/T +1h</span></label>
+<label class="text-[11px] font-bold text-slate-500 flex items-center gap-1"><span data-i18n="sample_interval_label">Interval</span>
+<select class="ibcl-graph-select" id="sampleIntervalSelect" onchange="setProjectionSampleInterval(this.value)">
+<option value="5">5m</option><option value="10">10m</option><option selected="" value="15">15m</option><option value="30">30m</option><option value="60">1h</option>
+</select></label>
+</div>
+<div class="text-[11px] text-slate-500 font-semibold"><span data-i18n="shift_window_label">Shift window:</span> <span id="shiftWindowDisplay">—</span></div>
+<div class="flex gap-2 flex-wrap">
+<button class="ibcl-graph-btn" onclick="recordProjectionSample(true)" type="button"><i class="fas fa-plus mr-1"></i><span data-i18n="graph_record_now_btn">Record Pace Now</span></button>
+<button class="ibcl-graph-btn" onclick="clearProjectionHistory()" type="button"><i class="fas fa-trash mr-1"></i><span data-i18n="graph_clear_history_btn">Clear History</span></button>
+</div>
+</div>
+
+<div class="mt-3 rounded-xl bg-slate-900/5 border border-slate-200 p-3" id="projectionFinishPanel">
+  <div class="grid grid-cols-1 gap-3">
+    <div class="ibcl-projection-card" id="projectedFinishCard">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <div class="text-[10px] uppercase font-black text-slate-400" data-i18n="projected_finish_label">Projected Finish</div>
+          <div class="text-3xl font-black tracking-tight" id="projectedFinishDelta">0</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] uppercase font-black text-slate-400" data-i18n="goal_percent_label">% To Goal</div>
+          <div class="text-xl font-black" id="projectedFinishPercent">0%</div>
+        </div>
+      </div>
+      <div class="ibcl-progress-shell ibcl-progress-overflow mt-3">
+        <div class="ibcl-progress-fill" id="projectedFinishBar" style="width:0%"></div>
+        <div class="ibcl-progress-goal-marker" title="Goal"></div>
+      </div>
+      <div class="mt-1 text-[11px] text-slate-500" id="projectedFinishCaption">0 projected / 0 goal</div>
+    </div>
+    <div class="ibcl-projection-card" id="processedProgressCard">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <div class="text-[10px] uppercase font-black text-slate-400" data-i18n="processed_label">Processed</div>
+          <div class="text-2xl font-black tracking-tight" id="processedProgressValue">0</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] uppercase font-black text-slate-400" data-i18n="current_progress_label">Current</div>
+          <div class="text-xl font-black" id="processedProgressPercent">0%</div>
+        </div>
+      </div>
+      <div class="ibcl-progress-shell mt-3">
+        <div class="ibcl-progress-fill ibcl-progress-current" id="processedProgressBar" style="width:0%"></div>
+      </div>
+      <div class="mt-1 text-[11px] text-slate-500" id="processedProgressCaption">0 estimated / 0 goal</div>
+    </div>
+  </div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+<div class="rounded-lg bg-white border border-slate-200 p-3 shadow-sm">
+<div class="text-[10px] uppercase font-bold text-slate-400" data-i18n="goal_pace_label">Goal Pace</div>
+<div class="text-sm font-bold text-slate-700"><span id="graphGoalPace">0</span>/hr</div>
+</div>
+<div class="rounded-lg bg-white border border-slate-200 p-3 shadow-sm">
+<div class="text-[10px] uppercase font-bold text-slate-400" data-i18n="manual_pace_label">Manual Pace</div>
+<div class="text-sm font-bold text-slate-700"><span id="graphManualPace">0</span>/hr</div>
+</div>
+<div class="rounded-lg bg-white border border-slate-200 p-3 shadow-sm">
+<div class="text-[10px] uppercase font-bold text-slate-400" data-i18n="projected_delta_label">Projected Delta</div>
+<div class="text-sm font-bold text-slate-700" id="graphProjectedDelta">0</div>
+</div>
+</div>
+</div></div></div>
+<!--
+        ============================================================================
+        SECTION: SHIFT EVENT LOG + FUTURE GRAPH VIEW
+        ----------------------------------------------------------------------------
+        Event log is the current source of truth for downtime entries.
+        Graph View below is deliberately a placeholder until a trustworthy processed
+        carton source exists or a deliberate inferred model is added.
+        ============================================================================
+        -->
+<!-- Event Log Panel -->
+<div class="w-full max-w-[1400px] mx-auto flex flex-col h-full mt-6">
+<div class="bg-white rounded-xl shadow-md flex flex-col h-full overflow-hidden border border-slate-200">
+<div class="ibcl-log-panel-header bg-slate-50 p-3 border-b border-slate-200">
+<h2 class="font-bold text-base sm:text-lg text-slate-800 min-w-0"><i class="fas fa-list-ul mr-2 text-blue-500"></i><span data-i18n="log_title">Shift Event Log</span></h2>
+<div class="ibcl-log-panel-actions">
+<div class="flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-lg px-2 py-1">
+<select class="bg-transparent text-xs font-bold text-slate-700 outline-none border-0 px-1 py-1" id="exportFormat">
+<option data-i18n="export_copy" value="copy">Copy</option>
+<option data-i18n="export_csv" value="csv">CSV</option>
+<option data-i18n="export_json" value="json">JSON</option>
+<option data-i18n="export_markdown" value="markdown">Markdown</option>
+</select>
+<button class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-3 rounded shadow transition flex items-center gap-2" onclick="handleLogExport()">
+<i class="fas fa-file-export"></i> <span data-i18n="export_btn">Export</span>
+</button>
+</div>
+<button class="text-xs text-red-500 hover:text-red-700 underline px-2" data-i18n="clear_btn" onclick="requestClearLog()">Clear</button>
+</div>
+</div>
+<!-- Log Header -->
+<div class="ibcl-log-header p-3 bg-slate-100 text-xs font-bold text-slate-500 uppercase border-b border-slate-200">
+<div class="col-span-2" data-i18n="time_col">Time</div>
+<div class="col-span-4" data-i18n="ticket_col">Ticket / Issue</div>
+<div class="col-span-3" data-i18n="areas_col">Areas</div>
+<div class="col-span-1" data-i18n="min_col">Min</div>
+<div class="col-span-1 text-right" data-i18n="loss_col">Loss</div>
+<div class="col-span-1 text-right" data-i18n="edit_col">Edit</div>
+</div>
+<!-- Log Body -->
+<div class="flex-1 overflow-y-auto p-2 space-y-2 bg-slate-50 min-h-[300px]" id="eventLogBody">
+<div class="text-center text-slate-400 mt-10 italic text-sm" data-i18n="placeholder_log">No events logged... yet.</div>
+</div>
+<!--
+                ====================================================================
+                SECTION: GRAPH VIEW PLACEHOLDER
+                --------------------------------------------------------------------
+                Not active yet. Do not chart fake precision.
+
+                Useful future inputs:
+                  1. Shift PID goal and shift length.
+                  2. Rolling previous-15-minute carton readings over time.
+                  3. Logged downtime/loss events from this dashboard.
+                  4. Optional official processed-cartons value, if a valid source is
+                     found later without hardcoding confidential access details.
+
+                Useful future outputs:
+                  - Goal pace line.
+                  - Inferred/actual throughput pace.
+                  - Loss-adjusted projection.
+                  - Over/under goal by end of shift.
+                ====================================================================
+                -->
+<!-- Footer Total -->
+<div class="bg-slate-900 text-white p-5 shadow-inner">
+<div class="flex justify-between items-end">
+<div class="text-sm text-slate-400" data-i18n="total_loss_label">Total Shift Loss</div>
+<div class="text-4xl font-bold text-yellow-400" id="grandTotalDisplay">0</div>
+</div>
+<div class="w-full bg-slate-700 h-1 mt-2 rounded-full"></div>
+<div class="flex justify-between text-xs text-slate-500 mt-1">
+<span><span data-i18n="total_events_label">Events:</span> <span id="totalEventsCount">0</span></span>
+<span><span data-i18n="total_downtime_label">Total Downtime:</span> <span id="totalDowntimeDisplay">0</span> <span data-i18n="min_label">min</span></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Modals and Toasts -->
+<div class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 hidden flex items-center justify-center" id="confirmModal">
+<div class="bg-white rounded-lg shadow-2xl p-6 max-w-sm w-full mx-4 transform transition-all">
+<h3 class="text-lg font-bold text-slate-900 mb-2" data-i18n="delete_title" id="modalTitle">Confirm Delete
+            </h3>
+<p class="text-slate-600 mb-6" data-i18n="delete_msg" id="modalMessage">Are you sure you want to remove this
+                event?</p>
+<div class="flex justify-end gap-3">
+<button class="px-4 py-2 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 font-semibold" data-i18n="cancel_btn" onclick="closeModal()">Cancel</button>
+<button class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 font-semibold" data-i18n="confirm_delete_btn" id="modalConfirmBtn">Delete</button>
+</div>
+</div>
+</div>
+<div class="fixed bottom-4 right-4 bg-slate-800 text-white px-4 py-2 rounded-lg shadow-lg transform translate-y-20 transition-transform duration-300 opacity-0 z-50" id="toast">
+<span data-i18n="toast_copied">Copied to Clipboard!</span>
+</div>
+<!-- Settings Menu: keeps language/theme controls tucked away until needed -->
+<div class="fixed bottom-4 left-4 flex flex-col items-start gap-2" id="settingsMenuWrap">
+<div class="hidden flex flex-col items-start gap-2" id="settingsMenuPanel">
+<button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-lg transition transform hover:scale-105 text-sm" id="langToggleBtn" onclick="toggleLanguage()">
+<i class="fas fa-language mr-1"></i> <span data-i18n="lang_btn_es">Español</span>
+</button>
+<button class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 px-4 rounded-full shadow-lg transition transform hover:scale-105 text-sm" id="darkModeToggleBtn" onclick="toggleDarkMode()">
+<i class="fas fa-moon mr-1"></i> <span data-i18n="dark_mode_btn">Dark Mode</span>
+</button><div class="bg-slate-900 text-white rounded-2xl shadow-lg p-3 min-w-[230px] border border-slate-700">
+<label class="flex items-center justify-between gap-3 text-sm font-bold cursor-pointer">
+<span><i class="fas fa-rotate mr-1"></i> <span data-i18n="auto_update_label">Auto Update</span></span>
+<input id="autoUpdateToggle" onchange="setAutoUpdate(this.checked)" type="checkbox">
+</input></label>
+<div class="mt-3">
+<div class="flex justify-between text-[10px] uppercase tracking-wide text-slate-400 font-bold mb-1">
+<span data-i18n="refresh_rate_label">Refresh Rate</span>
+<span><span id="autoUpdateSecondsDisplay">60</span>s</span>
+</div>
+<input class="w-full" id="autoUpdateInterval" max="300" min="30" oninput="setAutoUpdateInterval(this.value)" step="30" type="range" value="60"/>
+<div class="flex justify-between text-[10px] text-slate-500 mt-1"><span>30s</span><span>5m</span></div>
+</div>
+<p class="text-[11px] text-slate-400 mt-2 leading-snug" data-i18n="auto_update_hint">When enabled, open events are re-estimated on the interval so running losses climb without touching closed events.</p>
+<div class="mt-3 pt-3 border-t border-slate-700">
+<label class="flex items-center justify-between gap-3 text-sm font-bold cursor-pointer">
+<span><i class="fas fa-clock mr-1"></i> <span data-i18n="clock_sync_label">Sync Start Time</span></span>
+<input id="startTimeSyncToggle" onchange="setStartTimeAutoSync(this.checked)" type="checkbox"/>
+</label>
+<p class="text-[11px] text-slate-400 mt-2 leading-snug" data-i18n="clock_sync_hint">Keeps the start-time box on current system time until you manually change it or edit an event.</p>
+</div>
+<div class="mt-3 pt-3 border-t border-slate-700">
+<div class="text-[10px] uppercase tracking-wide text-slate-400 font-bold mb-2" data-i18n="data_mode_label">Data Mode</div>
+<div class="flex gap-2 flex-wrap">
+<button class="ibcl-mode-pill is-active" id="manualModeBtn" type="button"><i class="fas fa-keyboard mr-1"></i><span data-i18n="manual_mode_label">Manual</span></button>
+<button class="ibcl-mode-pill is-disabled" id="liveModeBtn" onclick="requestLiveMode()" title="Live Mode is locked until a safe data source exists" type="button"><i class="fas fa-satellite-dish mr-1"></i>Live Locked</button>
+</div>
+<div class="text-[11px] text-slate-400 mt-2" id="liveModeHint">Secret dev unlock exists, but Manual Mode remains the only production-safe mode.</div>
+</div>
+<div class="mt-3 pt-3 border-t border-slate-700">
+<div class="flex justify-between text-[10px] uppercase tracking-wide text-slate-400 font-bold mb-1">
+<span data-i18n="animations_label">Animations</span><span id="animationLabel">Snappy</span>
+</div>
+<input class="w-full" id="animationSlider" max="3" min="0" oninput="setAnimationLevel(this.value)" step="1" type="range" value="2"/>
+<div class="flex justify-between text-[10px] text-slate-500 mt-1"><span data-i18n="anim_off_label">Off</span><span data-i18n="anim_calm_label">Calm</span><span data-i18n="anim_snappy_label">Snappy</span><span data-i18n="anim_distract_label">Distract me</span></div>
+</div>
+</div>
+<button class="bg-slate-700 hover:bg-slate-800 text-white font-bold py-2 px-3 rounded-full shadow-lg transition transform hover:scale-105 text-sm" id="settingsCloseBtn" onclick="closeSettingsMenu()" title="Close menu">
+<i class="fas fa-chevron-left"></i>
+</button>
+</div>
+<button class="bg-slate-900 hover:bg-slate-800 text-white font-bold h-11 w-11 rounded-full shadow-lg transition transform hover:scale-105 text-sm flex items-center justify-center" id="settingsMenuBtn" onclick="toggleSettingsMenu()" title="Settings">
+<i class="fas fa-bars"></i>
+</button>
+</div>
+<!-- Personalization Badge -->
+<div class="ibcl-personal-badge" id="ibclPersonalBadge">
+<span class="ibcl-personal-name" id="ibclPersonalName"></span>
+<span class="ibcl-personal-message" id="ibclPersonalMessage"></span>
+</div>
+<!-- Watermark / About trigger -->
+<button id="ibclWatermark" onclick="openIBCLAbout()" class="fixed bottom-2 right-4 text-slate-300 hover:text-blue-300 text-xs font-semibold select-none z-30 transition" title="About IBCL">
+        erapowers x branasen
+    </button>
+
+<!-- About / Credits Modal -->
+<div id="aboutModal" class="fixed inset-0 bg-slate-950/70 z-[2147483647] hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+        <div class="bg-slate-900 text-white px-5 py-4 flex items-center justify-between gap-3">
+            <div>
+                <div class="text-xs uppercase tracking-wide text-slate-400 font-black" data-i18n="about_kicker">Version / Credits</div>
+                <h3 class="text-lg font-black" data-i18n="about_title">IBCL - Inbound Carton Loss</h3>
+            </div>
+            <button onclick="closeIBCLAbout()" class="text-slate-300 hover:text-white text-xl leading-none" title="Close">&times;</button>
+        </div>
+        <div class="p-5 space-y-4 text-sm text-slate-700 dark:text-slate-200">
+            <div class="rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3">
+                <div class="text-[10px] uppercase tracking-wide font-black text-slate-500" data-i18n="about_version_label">Version</div>
+                <div class="text-2xl font-black text-slate-900 dark:text-white">IBCL V2</div>
+                <div class="text-xs text-slate-500 mt-1" data-i18n="about_suite_label">Flowin Operations Suite module</div>
+            </div>
+            <div>
+                <div class="font-black text-slate-900 dark:text-white mb-1" data-i18n="about_credits_label">Credits</div>
+                <p data-i18n="about_credit_original">Original design and logic by erapower.</p>
+                <p data-i18n="about_credit_overhaul">V2 overhaul, dashboard framework, and addons by branasen.</p>
+            </div>
+            <div>
+                <div class="font-black text-slate-900 dark:text-white mb-1" data-i18n="about_note_label">Note</div>
+                <p class="text-slate-500 dark:text-slate-400" data-i18n="about_note_text">Unofficial local productivity tool. No credentials, tokens, or internal API keys are stored in this file.</p>
+            </div>
+            <button onclick="closeIBCLAbout()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl" data-i18n="about_close_btn">Close</button>
+        </div>
+    </div>
+</div>
+<script src="js/app.js"></script>
+<script src="js/desktop-layout.js"></script>
+</body>
+</html>

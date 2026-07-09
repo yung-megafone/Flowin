@@ -1,0 +1,1111 @@
+/*
+        ========================================================================
+        IBCL STYLE MAP
+        ------------------------------------------------------------------------
+        01. Form/input normalization
+        02. Shared utility classes
+        03. Dark mode overrides
+        04. Future graph placeholder styling
+
+        Most layout styling still lives in Tailwind utility classes directly on
+        the HTML nodes. CSS here is reserved for repeated behavior or overrides
+        that would be annoying to express repeatedly in class="..." strings.
+        ========================================================================
+        */
+
+        input[type="checkbox"] {
+            accent-color: #2563eb;
+            width: 1.1rem;
+            height: 1.1rem;
+            cursor: pointer;
+        }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+
+        .result-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+
+
+        /* Dark mode overrides */
+        body.dark {
+            background: #020617;
+            color: #e2e8f0;
+        }
+
+        body.dark .bg-white {
+            background-color: #0f172a !important;
+        }
+
+        body.dark .bg-slate-50 {
+            background-color: #111827 !important;
+        }
+
+        body.dark .bg-slate-100 {
+            background-color: #1e293b !important;
+        }
+
+        body.dark .bg-slate-200 {
+            background-color: #334155 !important;
+        }
+
+        body.dark .bg-slate-300 {
+            background-color: #475569 !important;
+        }
+
+        body.dark .bg-red-50 {
+            background-color: rgba(127, 29, 29, 0.35) !important;
+        }
+
+        body.dark .bg-red-100 {
+            background-color: rgba(127, 29, 29, 0.45) !important;
+        }
+
+        body.dark .bg-purple-50 {
+            background-color: rgba(88, 28, 135, 0.35) !important;
+        }
+
+        body.dark .border-purple-200 {
+            border-color: #6b21a8 !important;
+        }
+
+        body.dark .border-slate-200,
+        body.dark .border-slate-300 {
+            border-color: #334155 !important;
+        }
+
+        body.dark .text-slate-900,
+        body.dark .text-slate-800,
+        body.dark .text-slate-700 {
+            color: #f8fafc !important;
+        }
+
+        body.dark .text-slate-600,
+        body.dark .text-slate-500 {
+            color: #cbd5e1 !important;
+        }
+
+        body.dark .text-slate-400 {
+            color: #94a3b8 !important;
+        }
+
+        body.dark .text-slate-300 {
+            color: #64748b !important;
+        }
+
+        body.dark .text-purple-900 {
+            color: #f3e8ff !important;
+        }
+
+        body.dark .text-blue-900 {
+            color: #dbeafe !important;
+        }
+
+        body.dark input,
+        body.dark textarea,
+        body.dark select {
+            background-color: #020617 !important;
+            color: #e2e8f0 !important;
+            border-color: #475569 !important;
+        }
+
+        body.dark input::placeholder {
+            color: #64748b !important;
+        }
+
+        body.dark .shadow-md,
+        body.dark .shadow-sm,
+        body.dark .shadow-lg,
+        body.dark .shadow-2xl {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, .35) !important;
+        }
+
+
+        /*
+        ========================================================================
+        04. FUTURE GRAPH PLACEHOLDER
+        ------------------------------------------------------------------------
+        This is intentionally visual scaffolding only. It does not claim official
+        throughput numbers. When a real source exists, wire the chart to a clean
+        function near the GRAPH VIEW ROADMAP section in JS.
+        ========================================================================
+        */
+        .graph-placeholder-grid {
+            background-image:
+                linear-gradient(rgba(148, 163, 184, 0.16) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(148, 163, 184, 0.16) 1px, transparent 1px);
+            background-size: 28px 28px;
+        }
+
+        body.dark .graph-placeholder-grid {
+            background-image:
+                linear-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+        }
+
+
+        /*
+        ====================================================================
+        SECTION: USER-CUSTOMIZABLE DESKTOP GRID LAYOUT
+        --------------------------------------------------------------------
+        The dashboard modules are converted into movable/resizable cards at
+        runtime. Positions and sizes are saved locally so each user can build
+        the view they prefer without maintaining separate hardcoded layouts.
+        ====================================================================
+        */
+        .ibcl-desktop-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            padding: 0.75rem 0.9rem;
+            border: 1px solid rgb(226 232 240);
+            border-radius: 1rem;
+            background: rgba(255,255,255,0.72);
+            backdrop-filter: blur(10px);
+        }
+        body.dark .ibcl-desktop-toolbar {
+            background: rgba(15, 23, 42, 0.82);
+            border-color: #334155;
+        }
+        .ibcl-desktop {
+            position: relative;
+            min-height: 1180px;
+            border: 1px dashed rgb(203 213 225);
+            border-radius: 1.25rem;
+            background-image:
+                linear-gradient(rgba(100, 116, 139, 0.10) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(100, 116, 139, 0.10) 1px, transparent 1px);
+            background-size: 24px 24px;
+            overflow: hidden;
+        }
+        body.dark .ibcl-desktop {
+            border-color: #334155;
+            background-color: rgba(2, 6, 23, 0.30);
+            background-image:
+                linear-gradient(rgba(148, 163, 184, 0.10) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(148, 163, 184, 0.10) 1px, transparent 1px);
+        }
+        .ibcl-card {
+            position: absolute;
+            min-width: 320px;
+            min-height: 170px;
+            resize: none;
+            overflow: auto;
+            border-radius: 1rem;
+            background: transparent;
+            box-shadow: 0 16px 34px rgba(15, 23, 42, 0.12);
+        }
+        .ibcl-resize-handle {
+            position: absolute;
+            z-index: 12;
+            touch-action: none;
+            opacity: 0;
+            transition: opacity var(--ibcl-anim-fast, 120ms) ease, background var(--ibcl-anim-fast, 120ms) ease;
+        }
+        .ibcl-card:hover .ibcl-resize-handle,
+        .ibcl-card.is-resizing .ibcl-resize-handle {
+            opacity: 1;
+        }
+        .ibcl-resize-n,
+        .ibcl-resize-s {
+            left: 12px;
+            right: 12px;
+            height: 8px;
+            cursor: ns-resize;
+        }
+        .ibcl-resize-n { top: 0; }
+        .ibcl-resize-s { bottom: 0; }
+        .ibcl-resize-e,
+        .ibcl-resize-w {
+            top: 12px;
+            bottom: 12px;
+            width: 8px;
+            cursor: ew-resize;
+        }
+        .ibcl-resize-e { right: 0; }
+        .ibcl-resize-w { left: 0; }
+        .ibcl-resize-ne,
+        .ibcl-resize-nw,
+        .ibcl-resize-se,
+        .ibcl-resize-sw {
+            width: 16px;
+            height: 16px;
+        }
+        .ibcl-resize-ne { top: 0; right: 0; cursor: nesw-resize; }
+        .ibcl-resize-nw { top: 0; left: 0; cursor: nwse-resize; }
+        .ibcl-resize-se { right: 0; bottom: 0; cursor: nwse-resize; }
+        .ibcl-resize-sw { left: 0; bottom: 0; cursor: nesw-resize; }
+        .ibcl-card:hover .ibcl-resize-n,
+        .ibcl-card:hover .ibcl-resize-s,
+        .ibcl-card.is-resizing .ibcl-resize-n,
+        .ibcl-card.is-resizing .ibcl-resize-s {
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.30), transparent);
+        }
+        .ibcl-card:hover .ibcl-resize-e,
+        .ibcl-card:hover .ibcl-resize-w,
+        .ibcl-card.is-resizing .ibcl-resize-e,
+        .ibcl-card.is-resizing .ibcl-resize-w {
+            background: linear-gradient(180deg, transparent, rgba(59, 130, 246, 0.30), transparent);
+        }
+        .ibcl-card:hover .ibcl-resize-ne,
+        .ibcl-card:hover .ibcl-resize-nw,
+        .ibcl-card:hover .ibcl-resize-se,
+        .ibcl-card:hover .ibcl-resize-sw,
+        .ibcl-card.is-resizing .ibcl-resize-ne,
+        .ibcl-card.is-resizing .ibcl-resize-nw,
+        .ibcl-card.is-resizing .ibcl-resize-se,
+        .ibcl-card.is-resizing .ibcl-resize-sw {
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.55), rgba(59, 130, 246, 0.05) 58%, transparent 62%);
+            border-radius: 999px;
+        }
+        body.dark .ibcl-card {
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.38);
+        }
+        .ibcl-card.is-hidden-by-gate {
+            display: none;
+        }
+        .ibcl-card-header {
+            position: sticky;
+            top: 0;
+            z-index: 8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.45rem 0.7rem;
+            cursor: move;
+            user-select: none;
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 1rem 1rem 0 0;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.045em;
+            text-transform: uppercase;
+        }
+        .ibcl-card-header .ibcl-card-tools {
+            display: flex;
+            gap: 0.35rem;
+            align-items: center;
+            color: #94a3b8;
+            font-weight: 700;
+            letter-spacing: normal;
+            text-transform: none;
+        }
+        .ibcl-card > .ibcl-card-body > * {
+            border-top-left-radius: 0 !important;
+            border-top-right-radius: 0 !important;
+        }
+        .ibcl-card[data-card-id="log"] {
+            min-height: 360px;
+            min-width: 420px;
+        }
+        .ibcl-card[data-card-id="log"] .ibcl-card-body {
+            overflow: hidden;
+            min-width: 0;
+        }
+        .ibcl-card[data-card-id="log"] .ibcl-card-body > .w-full {
+            max-width: none !important;
+            width: 100% !important;
+            height: 100% !important;
+            margin: 0 !important;
+            min-width: 0 !important;
+        }
+        .ibcl-card[data-card-id="log"] .ibcl-card-body > .w-full > .bg-white {
+            height: 100% !important;
+            min-width: 0 !important;
+        }
+        .ibcl-log-panel-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.65rem;
+            min-width: 0;
+        }
+        .ibcl-log-panel-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            min-width: 0;
+        }
+        .ibcl-log-header,
+        .ibcl-log-row-closed {
+            display: grid !important;
+            grid-template-columns: minmax(82px, 0.8fr) minmax(130px, 2fr) minmax(90px, 1.35fr) minmax(42px, 0.45fr) minmax(66px, 0.65fr) minmax(50px, 0.45fr);
+            gap: 0.45rem;
+            align-items: center;
+            min-width: 0;
+        }
+        .ibcl-log-header > *,
+        .ibcl-log-row-closed > * {
+            grid-column: auto !important;
+            min-width: 0;
+        }
+        .ibcl-log-row-running {
+            display: grid !important;
+            grid-template-columns: auto 88px minmax(150px, 1fr) 88px auto auto auto;
+            gap: 0.45rem;
+            align-items: center;
+            min-width: 0;
+        }
+        .ibcl-log-row-running > * {
+            min-width: 0;
+        }
+        .ibcl-log-ticket,
+        .ibcl-log-areas {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        #eventLogBody {
+            overflow-x: hidden !important;
+            min-width: 0;
+        }
+        @media (max-width: 760px) {
+            .ibcl-log-header {
+                display: none !important;
+            }
+            .ibcl-log-row-closed,
+            .ibcl-log-row-running {
+                grid-template-columns: 1fr auto !important;
+                gap: 0.5rem;
+            }
+            .ibcl-log-row-closed > *,
+            .ibcl-log-row-running > * {
+                grid-column: auto !important;
+            }
+            .ibcl-log-ticket,
+            .ibcl-log-areas {
+                white-space: normal;
+            }
+        }
+        .ibcl-card[data-card-id="metrics"] {
+            min-height: 360px;
+        }
+        .ibcl-card[data-card-id="graph"] {
+            min-height: 260px;
+        }
+        .ibcl-card[data-card-id="areas"] {
+            min-height: 320px;
+        }
+        .ibcl-card-body {
+            height: calc(100% - 34px);
+        }
+        .ibcl-card-body > * {
+            height: 100%;
+        }
+        .ibcl-card[data-card-id="inputs"] .ibcl-card-body > *,
+        .ibcl-card[data-card-id="areas"] .ibcl-card-body > * {
+            height: auto;
+            min-height: 100%;
+        }
+        .ibcl-layout-reset-btn {
+            border: 1px solid #475569;
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 999px;
+            padding: 0.45rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+
+        .ibcl-menu-card {
+            background: #0f172a;
+            color: #e2e8f0;
+            border: 1px solid #334155;
+            border-radius: 1rem;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.32);
+            padding: 0.75rem;
+            min-width: 250px;
+            max-width: min(86vw, 330px);
+        }
+        .ibcl-menu-title {
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #94a3b8;
+            font-weight: 900;
+            margin-bottom: 0.45rem;
+        }
+        .ibcl-menu-input {
+            width: 100%;
+            border: 1px solid #475569;
+            background: #020617;
+            color: #e2e8f0;
+            border-radius: 0.65rem;
+            padding: 0.45rem 0.6rem;
+            font-size: 0.78rem;
+            outline: none;
+        }
+        .ibcl-menu-input:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.28);
+        }
+        .ibcl-personal-badge {
+            position: fixed;
+            top: 0.85rem;
+            right: 1rem;
+            z-index: 35;
+            max-width: min(42vw, 520px);
+            background: rgba(15, 23, 42, 0.82);
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            color: #e2e8f0;
+            backdrop-filter: blur(10px);
+            border-radius: 999px;
+            padding: 0.45rem 0.75rem;
+            display: none;
+            align-items: center;
+            gap: 0.45rem;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+            pointer-events: none;
+        }
+        .ibcl-personal-badge.is-visible { display: flex; }
+        .ibcl-personal-name {
+            font-size: 0.76rem;
+            font-weight: 900;
+            color: #bfdbfe;
+            white-space: nowrap;
+        }
+        .ibcl-personal-message {
+            font-size: 0.76rem;
+            color: #cbd5e1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        @media (max-width: 700px) {
+            .ibcl-personal-badge {
+                top: 0.6rem;
+                right: 0.6rem;
+                max-width: calc(100vw - 5rem);
+                border-radius: 0.9rem;
+            }
+            .ibcl-personal-message { display: none; }
+        }
+
+        @media (max-width: 900px) {
+            .ibcl-desktop {
+                min-height: auto;
+                border: 0;
+                background-image: none;
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                overflow: visible;
+            }
+            .ibcl-card {
+                position: static !important;
+                width: 100% !important;
+                height: auto !important;
+                resize: none;
+                overflow: visible;
+            }
+            .ibcl-card-header {
+                cursor: default;
+            }
+            .ibcl-resize-handle {
+                display: none;
+            }
+            .ibcl-card-body, .ibcl-card-body > * {
+                height: auto;
+            }
+        }
+
+
+        /*
+        ====================================================================
+        SECTION: FLOWDESK V2 POLISH LAYER
+        --------------------------------------------------------------------
+        This layer keeps the dashboard feeling like a cockpit instead of a
+        cramped webpage: high viewport usage, cleaner scrollbars, snapped card
+        dragging, animation controls, and placeholders for future live mode.
+        ====================================================================
+        */
+        :root {
+            --ibcl-anim-fast: 120ms;
+            --ibcl-anim-med: 220ms;
+            --ibcl-anim-slow: 420ms;
+            --ibcl-snap: 16px;
+        }
+        body { padding-bottom: 0 !important; }
+        body[data-animation="off"] *,
+        body[data-animation="off"] *::before,
+        body[data-animation="off"] *::after {
+            transition-duration: 0ms !important;
+            animation-duration: 0ms !important;
+            scroll-behavior: auto !important;
+        }
+        body[data-animation="calm"] { --ibcl-anim-fast: 90ms; --ibcl-anim-med: 160ms; --ibcl-anim-slow: 260ms; }
+        body[data-animation="snappy"] { --ibcl-anim-fast: 140ms; --ibcl-anim-med: 240ms; --ibcl-anim-slow: 380ms; }
+        body[data-animation="distract"] { --ibcl-anim-fast: 220ms; --ibcl-anim-med: 420ms; --ibcl-anim-slow: 800ms; }
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(100, 116, 139, 0.55) transparent;
+        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.35);
+            border-radius: 999px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.70); background-clip: padding-box; }
+        .max-w-\[1400px\] {
+            width: min(98vw, 2400px) !important;
+            max-width: none !important;
+            padding: 0.65rem !important;
+        }
+        .ibcl-desktop-toolbar {
+            margin-bottom: 0.5rem !important;
+            padding: 0.55rem 0.75rem !important;
+        }
+        .ibcl-desktop {
+            min-height: 80vh !important;
+            height: 82vh;
+            overflow: auto !important;
+            border-style: solid !important;
+        }
+        .ibcl-card {
+            transition: box-shadow var(--ibcl-anim-med) ease, transform var(--ibcl-anim-med) ease, opacity var(--ibcl-anim-med) ease;
+            animation: ibclCardIn var(--ibcl-anim-slow) ease both;
+        }
+        .ibcl-card:hover { box-shadow: 0 18px 42px rgba(15, 23, 42, 0.18); }
+        body.dark .ibcl-card:hover { box-shadow: 0 22px 48px rgba(0,0,0,0.48); }
+        .ibcl-card.is-dragging { opacity: 0.93; transform: scale(1.006); }
+        .ibcl-card-header {
+            min-height: 34px;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+        }
+        .ibcl-card-tools { opacity: 0.85; }
+        .ibcl-preset-btn, .ibcl-mode-pill {
+            border-radius: 999px;
+            padding: 0.35rem 0.65rem;
+            font-size: 0.7rem;
+            font-weight: 900;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: #e2e8f0;
+            transition: transform var(--ibcl-anim-fast) ease, filter var(--ibcl-anim-fast) ease;
+        }
+        .ibcl-preset-btn:hover, .ibcl-mode-pill:not(.is-disabled):hover { transform: translateY(-1px); filter: brightness(1.12); }
+        .ibcl-mode-pill.is-active { background: #2563eb; border-color: #60a5fa; }
+        .ibcl-mode-pill.is-disabled { opacity: 0.45; cursor: not-allowed; }
+        .ibcl-live-unlocked .ibcl-mode-pill.is-disabled { opacity: 0.9; cursor: pointer; background: #581c87; border-color: #a855f7; }
+        .ibcl-throughput-arrow.up { color: #34d399; }
+        .ibcl-throughput-arrow.down { color: #f87171; }
+        .ibcl-throughput-arrow.flat { color: #facc15; }
+        body[data-animation="distract"] .ibcl-throughput-arrow.up,
+        body[data-animation="distract"] .ibcl-throughput-arrow.down {
+            animation: ibclPulse 1.3s ease-in-out infinite;
+        }
+        .ibcl-projection-svg {
+            width: 100%;
+            height: 190px;
+            display: block;
+            border-radius: 0.75rem;
+            background: rgba(15, 23, 42, 0.04);
+        }
+        body.dark .ibcl-projection-svg { background: rgba(15, 23, 42, 0.55); }
+        .ibcl-graph-line { fill: none; stroke-width: 3; stroke-linecap: round; }
+        .ibcl-graph-goal { stroke: #60a5fa; stroke-dasharray: 7 6; }
+        .ibcl-graph-perf { stroke: #34d399; }
+        .ibcl-graph-loss { stroke: #f97316; }
+        .ibcl-graph-axis { stroke: rgba(148,163,184,.35); stroke-width: 1; }
+        @keyframes ibclCardIn { from { opacity: 0; transform: translateY(8px) scale(.995); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes ibclPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+        @media (max-width: 900px) {
+            .ibcl-desktop { height: auto; min-height: auto !important; }
+            .max-w-\[1400px\] { width: 100% !important; padding: 0.75rem !important; }
+        }
+
+    
+
+        /*
+        ====================================================================
+        PATCH: EVENT LOG FLUSH FIT + ANY-EDGE RESIZE POLISH
+        --------------------------------------------------------------------
+        Keeps the card shell and the log panel visually connected. The card
+        header is the titlebar; the log panel underneath should not create a
+        second rounded card with a gap at the top.
+        ====================================================================
+        */
+        .ibcl-card {
+            overflow: hidden;
+        }
+        .ibcl-card-body {
+            overflow: auto;
+            border-radius: 0 0 1rem 1rem;
+        }
+        .ibcl-card[data-card-id="log"] {
+            overflow: hidden;
+        }
+        .ibcl-card[data-card-id="log"] .ibcl-card-body {
+            overflow: hidden;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-top: 0;
+        }
+        body:not(.dark) .ibcl-card[data-card-id="log"] .ibcl-card-body {
+            background: #ffffff;
+            border-color: #cbd5e1;
+        }
+        .ibcl-card[data-card-id="log"] .ibcl-card-body > .w-full {
+            margin: 0 !important;
+            padding: 0 !important;
+            max-width: none !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        .ibcl-card[data-card-id="log"] .ibcl-card-body > .w-full > .bg-white {
+            border-radius: 0 0 1rem 1rem !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            height: 100% !important;
+            min-width: 0 !important;
+        }
+        .ibcl-card[data-card-id="log"] .ibcl-log-panel-header {
+            border-radius: 0 !important;
+            margin: 0 !important;
+        }
+        .ibcl-card[data-card-id="log"] #eventLogBody {
+            min-height: 0 !important;
+        }
+        .ibcl-card[data-card-id="log"] .bg-slate-900.text-white {
+            border-radius: 0 0 1rem 1rem !important;
+        }
+        .ibcl-card[data-card-id="log"] .ibcl-card-header {
+            border-radius: 1rem 1rem 0 0;
+        }
+        .ibcl-resize-handle {
+            pointer-events: auto;
+        }
+
+
+
+        /*
+        ====================================================================
+        PATCH: CLEAN HINTS + MINIMIZE + AREAS CARD FLUSH
+        --------------------------------------------------------------------
+        Hints default to hidden for a cleaner dashboard. Users can reveal them
+        from the settings menu. Cards can collapse to just their titlebar.
+        ====================================================================
+        */
+        body.ibcl-hints-hidden [data-i18n="calc_subtitle"],
+        body.ibcl-hints-hidden [data-i18n="metric_waiting"],
+        body.ibcl-hints-hidden [data-i18n="graph_hint"],
+        body.ibcl-hints-hidden [data-i18n="start_hint"],
+        body.ibcl-hints-hidden [data-i18n="location_gate_hint"],
+        body.ibcl-hints-hidden [data-i18n="cb_hint"],
+        body.ibcl-hints-hidden [data-i18n="presort_hint"],
+        body.ibcl-hints-hidden [data-i18n="auto_update_hint"],
+        body.ibcl-hints-hidden #liveModeHint {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 1.1rem;
+            height: 1.1rem;
+            min-width: 1.1rem;
+            overflow: hidden;
+            color: transparent !important;
+            font-size: 0 !important;
+            vertical-align: middle;
+            border-radius: 999px;
+            background: rgba(59, 130, 246, 0.14);
+            border: 1px solid rgba(59, 130, 246, 0.45);
+            cursor: help;
+        }
+        body.ibcl-hints-hidden [data-i18n="calc_subtitle"]::after,
+        body.ibcl-hints-hidden [data-i18n="metric_waiting"]::after,
+        body.ibcl-hints-hidden [data-i18n="graph_hint"]::after,
+        body.ibcl-hints-hidden [data-i18n="start_hint"]::after,
+        body.ibcl-hints-hidden [data-i18n="location_gate_hint"]::after,
+        body.ibcl-hints-hidden [data-i18n="cb_hint"]::after,
+        body.ibcl-hints-hidden [data-i18n="presort_hint"]::after,
+        body.ibcl-hints-hidden [data-i18n="auto_update_hint"]::after,
+        body.ibcl-hints-hidden #liveModeHint::after {
+            content: "?";
+            color: #60a5fa;
+            font-size: 0.72rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+        body.ibcl-hints-hidden [data-i18n="calc_subtitle"]:hover,
+        body.ibcl-hints-hidden [data-i18n="metric_waiting"]:hover,
+        body.ibcl-hints-hidden [data-i18n="graph_hint"]:hover,
+        body.ibcl-hints-hidden [data-i18n="start_hint"]:hover,
+        body.ibcl-hints-hidden [data-i18n="location_gate_hint"]:hover,
+        body.ibcl-hints-hidden [data-i18n="cb_hint"]:hover,
+        body.ibcl-hints-hidden [data-i18n="presort_hint"]:hover,
+        body.ibcl-hints-hidden [data-i18n="auto_update_hint"]:hover,
+        body.ibcl-hints-hidden #liveModeHint:hover {
+            background: rgba(59, 130, 246, 0.24);
+        }
+        .ibcl-hint-toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .75rem;
+            font-size: .8rem;
+            font-weight: 800;
+        }
+        .ibcl-card-minimize {
+            appearance: none;
+            border: 0;
+            background: transparent;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: .2rem .35rem;
+            border-radius: .4rem;
+            transition: background var(--ibcl-anim-fast, 120ms) ease, color var(--ibcl-anim-fast, 120ms) ease;
+        }
+        .ibcl-card-minimize:hover {
+            background: rgba(148, 163, 184, .14);
+            color: #e2e8f0;
+        }
+        .ibcl-card.is-minimized {
+            min-height: 34px !important;
+            height: 34px !important;
+            overflow: hidden !important;
+        }
+        .ibcl-card.is-minimized .ibcl-card-body,
+        .ibcl-card.is-minimized .ibcl-resize-handle {
+            display: none !important;
+        }
+        .ibcl-card.is-minimized .ibcl-card-header {
+            border-radius: 1rem !important;
+        }
+        .ibcl-card.is-minimized .ibcl-card-minimize i {
+            transform: rotate(180deg);
+        }
+        .ibcl-card[data-card-id="areas"] {
+            overflow: hidden;
+        }
+        .ibcl-card[data-card-id="areas"] .ibcl-card-body {
+            overflow: auto;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-top: 0;
+            border-radius: 0 0 1rem 1rem;
+        }
+        body:not(.dark) .ibcl-card[data-card-id="areas"] .ibcl-card-body {
+            background: #ffffff;
+            border-color: #cbd5e1;
+        }
+        .ibcl-card[data-card-id="areas"] #affectedAreaGate {
+            min-height: 100%;
+            padding: 0;
+            margin: 0;
+            overflow: auto;
+            background: transparent;
+        }
+        .ibcl-card[data-card-id="areas"] #affectedAreaGate > *:first-child,
+        .ibcl-card[data-card-id="areas"] #affectedAreaGate > .bg-white:first-of-type {
+            border-top-left-radius: 0 !important;
+            border-top-right-radius: 0 !important;
+        }
+        .ibcl-card[data-card-id="areas"] #affectedAreaGate > * {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+
+
+
+
+
+        /* ============================================================
+           AFFECTED AREAS CARD - EXPAND THE USEFUL PART
+           ------------------------------------------------------------
+           When the card is stretched taller, grow the PID selector
+           instead of leaving dead space under Pre-Sort. CB and Pre-Sort
+           stay compact; West/East PID sections get the extra room.
+           ============================================================ */
+        .ibcl-card[data-card-id="areas"] .ibcl-card-body {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .ibcl-card[data-card-id="areas"] #affectedAreaGate:not(.hidden) {
+            display: flex !important;
+            flex-direction: column;
+            gap: 1rem;
+            height: 100%;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .ibcl-card[data-card-id="areas"] #affectedAreaGate > *:first-child,
+        .ibcl-card[data-card-id="areas"] #affectedAreaGate > *:last-child {
+            flex: 0 0 auto;
+        }
+
+        .ibcl-card[data-card-id="areas"] #affectedAreaGate > *:nth-child(2) {
+            flex: 1 1 auto;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .ibcl-card[data-card-id="areas"] #affectedAreaGate > *:nth-child(2) > *:first-child {
+            flex: 0 0 auto;
+        }
+
+        .ibcl-card[data-card-id="areas"] #affectedAreaGate > *:nth-child(2) > *:last-child {
+            flex: 1 1 auto;
+            min-height: 0;
+            max-height: none !important;
+            overflow-y: auto;
+        }
+
+        .ibcl-card[data-card-id="areas"] #affectedAreaGate > *:nth-child(2) > *:last-child > div,
+        .ibcl-card[data-card-id="areas"] #affectedAreaGate > *:nth-child(2) > *:last-child > div > div {
+            min-height: 100%;
+        }
+
+        .ibcl-card[data-card-id="areas"] #affectedAreaGate > *:last-child {
+            margin-top: auto;
+        }
+
+        /* ============================================================
+           SETTINGS MENU PANEL POLISH
+           Keeps the menu width stable and forces it above draggable cards.
+           ============================================================ */
+        #settingsMenuWrap {
+            z-index: 2147483000 !important;
+            pointer-events: none;
+        }
+        #settingsMenuWrap > * {
+            pointer-events: auto;
+        }
+        #settingsMenuPanel {
+            width: min(92vw, 360px);
+            max-height: min(78vh, 720px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            align-items: stretch !important;
+            gap: 0.65rem !important;
+            background: rgba(2, 6, 23, 0.94);
+            border: 1px solid rgba(148, 163, 184, 0.24);
+            border-radius: 1.25rem;
+            padding: 0.75rem;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.58);
+            backdrop-filter: blur(14px);
+        }
+        #settingsMenuPanel.hidden {
+            display: none !important;
+        }
+        #settingsMenuPanel > button,
+        #settingsMenuPanel > div,
+        #settingsMenuPanel .ibcl-menu-card {
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: none !important;
+            box-sizing: border-box;
+        }
+        #settingsMenuPanel > button {
+            border-radius: 0.9rem !important;
+            justify-content: center;
+        }
+        #settingsMenuPanel > .bg-slate-900 {
+            border-radius: 1rem !important;
+            border: 1px solid rgba(51, 65, 85, 0.95) !important;
+            box-shadow: none !important;
+        }
+        #settingsCloseBtn {
+            order: 999;
+            align-self: stretch;
+        }
+        .ibcl-menu-card {
+            min-width: 0;
+            max-width: none;
+            box-shadow: none;
+        }
+        .ibcl-menu-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 1rem;
+        }
+        .ibcl-menu-title::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            margin-left: 0.6rem;
+            background: rgba(148, 163, 184, 0.16);
+        }
+
+
+        /*
+        ====================================================================
+        PATCH: CLEANER HINTS + MORE GRID SPACE
+        --------------------------------------------------------------------
+        Converts secondary guidance text into compact hint markers by default
+        and removes the workspace intro toolbar so the dashboard uses more of
+        the page.
+        ====================================================================
+        */
+        .ibcl-desktop-toolbar {
+            display: none !important;
+        }
+        .max-w-\[1400px\] {
+            padding: 0.4rem !important;
+        }
+        .ibcl-desktop {
+            height: calc(100vh - 0.9rem) !important;
+            min-height: 88vh !important;
+        }
+        #metricBasis:empty {
+            display: none;
+        }
+
+
+        /* ============================================================
+           PROJECTION HISTORY LINE CHART
+           Stores one sample per 15-minute bucket locally and draws the
+           projected over/under-goal trend as a true time series.
+           ============================================================ */
+        .ibcl-graph-history { stroke: #a78bfa; stroke-width: 3.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .ibcl-graph-zero { stroke: rgba(148, 163, 184, 0.55); stroke-width: 1.5; stroke-dasharray: 5 5; }
+        .ibcl-graph-current { stroke: #facc15; stroke-width: 2.5; fill: none; stroke-dasharray: 4 5; }
+        .ibcl-graph-dot { fill: #c4b5fd; stroke: #0f172a; stroke-width: 2; }
+        .ibcl-graph-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; margin-top: .65rem; }
+        .ibcl-graph-btn { border: 1px solid rgba(148,163,184,.35); background: rgba(15,23,42,.08); border-radius: 999px; padding: .35rem .6rem; font-size: .68rem; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; }
+        body.dark .ibcl-graph-btn { background: rgba(15,23,42,.55); color: #e2e8f0; }
+
+
+/* ============================================================
+   PROJECTED FINISH / PROCESSED PROGRESS BARS
+   ------------------------------------------------------------
+   Two different views:
+   - Projected Finish: where the shift is projected to end, with
+     overflow room to 150% of goal.
+   - Processed: estimated progress so far toward the PID goal.
+   ============================================================ */
+.ibcl-projection-card {
+    border: 1px solid rgb(226 232 240);
+    border-radius: 0.85rem;
+    background: rgba(255,255,255,0.82);
+    padding: 0.8rem;
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
+}
+body.dark .ibcl-projection-card {
+    background: rgba(15, 23, 42, 0.78);
+    border-color: #334155;
+}
+.ibcl-progress-shell {
+    position: relative;
+    width: 100%;
+    height: 0.85rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(100, 116, 139, 0.22);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+}
+.ibcl-progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    transition: width var(--ibcl-anim-med, 220ms) ease, background var(--ibcl-anim-med, 220ms) ease;
+    background: #64748b;
+}
+.ibcl-progress-fill.good { background: linear-gradient(90deg, #059669, #34d399); }
+.ibcl-progress-fill.neutral { background: linear-gradient(90deg, #64748b, #94a3b8); }
+.ibcl-progress-fill.warn { background: linear-gradient(90deg, #d97706, #facc15); }
+.ibcl-progress-fill.bad { background: linear-gradient(90deg, #991b1b, #ef4444); }
+.ibcl-progress-current { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+.ibcl-progress-overflow .ibcl-progress-goal-marker {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    left: 66.6667%;
+    width: 2px;
+    background: rgba(248, 250, 252, 0.92);
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.35);
+}
+body:not(.dark) .ibcl-progress-overflow .ibcl-progress-goal-marker {
+    background: rgba(15, 23, 42, 0.82);
+    box-shadow: 0 0 0 1px rgba(248, 250, 252, 0.8);
+}
+#projectedFinishDelta.good, #projectedFinishPercent.good { color: #34d399; }
+#projectedFinishDelta.neutral, #projectedFinishPercent.neutral { color: #cbd5e1; }
+body:not(.dark) #projectedFinishDelta.neutral, body:not(.dark) #projectedFinishPercent.neutral { color: #475569; }
+#projectedFinishDelta.warn, #projectedFinishPercent.warn { color: #facc15; }
+#projectedFinishDelta.bad, #projectedFinishPercent.bad { color: #f87171; }
+
+
+/* ============================================================
+   POP-OUT CARD MODE
+   ------------------------------------------------------------
+   Allows one IBCL card to run in its own browser window so the
+   operator can keep inputs on one display and charts/numbers on
+   another. Uses the same localStorage state as the main window.
+   ============================================================ */
+.ibcl-card-popout,
+.ibcl-card-minimize {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: .2rem .35rem;
+    border-radius: .4rem;
+    transition: background var(--ibcl-anim-fast, 120ms) ease, color var(--ibcl-anim-fast, 120ms) ease;
+}
+.ibcl-card-popout:hover,
+.ibcl-card-minimize:hover {
+    background: rgba(148, 163, 184, .14);
+    color: #e2e8f0;
+}
+body.ibcl-popout-mode {
+    overflow: hidden;
+    padding: 0 !important;
+}
+body.ibcl-popout-mode .max-w-\[1400px\] {
+    width: 100vw !important;
+    padding: 0 !important;
+}
+body.ibcl-popout-mode .ibcl-desktop {
+    width: 100vw !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    overflow: hidden !important;
+    background-size: 24px 24px;
+}
+body.ibcl-popout-mode .ibcl-card {
+    position: absolute !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+body.ibcl-popout-mode .ibcl-card-header {
+    border-radius: 0 !important;
+}
+body.ibcl-popout-mode .ibcl-card-body {
+    height: calc(100vh - 34px) !important;
+    border-radius: 0 !important;
+}
+body.ibcl-popout-mode .ibcl-card-body > * {
+    min-height: 100% !important;
+}
