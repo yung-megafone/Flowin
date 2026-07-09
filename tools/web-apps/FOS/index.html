@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Flowin Operations Suite</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#020617;--panel:#0f172a;--panel2:#111827;--border:#334155;
+  --text:#e2e8f0;--muted:#94a3b8;--blue:#2563eb;--green:#10b981;
+  --shadow:0 18px 45px rgba(0,0,0,.38)
+}
+body.light{
+  --bg:#f1f5f9;--panel:#ffffff;--panel2:#f8fafc;--border:#cbd5e1;
+  --text:#0f172a;--muted:#64748b;--shadow:0 18px 45px rgba(15,23,42,.14)
+}
+*{scrollbar-width:thin;scrollbar-color:rgba(100,116,139,.6) transparent}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(100,116,139,.42);border-radius:999px}
+body{
+  background:
+    linear-gradient(rgba(37,99,235,.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37,99,235,.055) 1px, transparent 1px),
+    radial-gradient(circle at 30% 0%, rgba(37,99,235,.14), transparent 35%),
+    var(--bg);
+  background-size:32px 32px,32px 32px,100% 100%;
+  color:var(--text);
+  font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;
+  min-height:100vh;
+}
+.card{background:var(--panel);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:1.15rem;overflow:hidden}
+.card-title{background:linear-gradient(135deg,#0f172a,#1e293b);color:#e2e8f0;padding:.7rem .9rem;font-size:.74rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;justify-content:space-between}
+.btn{border-radius:.8rem;padding:.7rem .95rem;font-size:.85rem;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;transition:.15s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.08)}
+.btn-blue{background:#2563eb;color:#fff}.btn-green{background:#059669;color:#fff}.btn-slate{background:#1e293b;color:#e2e8f0;border:1px solid #334155}.btn-red{background:#991b1b;color:#fee2e2}
+.field{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:.8rem;padding:.68rem .8rem;outline:none;width:100%}
+.field:focus{border-color:#60a5fa;box-shadow:0 0 0 2px rgba(37,99,235,.28)}
+.label{font-size:.67rem;text-transform:uppercase;letter-spacing:.06em;font-weight:900;color:var(--muted);margin-bottom:.35rem}
+.module-card{background:linear-gradient(180deg,rgba(30,41,59,.75),rgba(15,23,42,.95));border:1px solid rgba(148,163,184,.22);border-radius:1.15rem;padding:1rem;transition:.18s;position:relative;overflow:hidden}
+.module-card:hover{transform:translateY(-2px);border-color:rgba(96,165,250,.55);box-shadow:0 22px 55px rgba(0,0,0,.35)}
+.module-card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at top right,rgba(37,99,235,.18),transparent 42%);pointer-events:none}
+.module-icon{height:42px;width:42px;border-radius:.95rem;display:grid;place-items:center;background:#1d4ed8;color:white;box-shadow:0 10px 28px rgba(37,99,235,.35)}
+.badge{font-size:.65rem;font-weight:900;border:1px solid rgba(148,163,184,.28);border-radius:999px;padding:.2rem .48rem;color:#cbd5e1;background:rgba(15,23,42,.7)}
+.watermark{position:fixed;right:1rem;bottom:.55rem;z-index:30;color:#64748b;font-size:.75rem;font-weight:800;cursor:pointer;user-select:none}
+.toast{position:fixed;right:1rem;bottom:2.5rem;background:#0f172a;color:#fff;border:1px solid #334155;border-radius:.8rem;padding:.75rem 1rem;box-shadow:var(--shadow);transform:translateY(120%);opacity:0;transition:.25s;z-index:60}
+.toast.show{transform:translateY(0);opacity:1}
+.menu{position:fixed;left:1rem;bottom:1rem;z-index:50}
+.menu-panel{width:min(92vw,380px);max-height:76vh;overflow:auto;background:rgba(2,6,23,.96);border:1px solid rgba(148,163,184,.24);box-shadow:0 24px 80px rgba(0,0,0,.58);backdrop-filter:blur(14px);border-radius:1.25rem;padding:.75rem;margin-bottom:.55rem}
+.menu-panel.hidden{display:none}
+.about{position:fixed;inset:0;background:rgba(2,6,23,.72);display:none;align-items:center;justify-content:center;z-index:70;padding:1rem}
+.about.show{display:flex}
+.about-card{max-width:620px;width:100%;background:var(--panel);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:1.25rem;overflow:hidden}
+.small{font-size:.78rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="max-w-[1500px] mx-auto px-4 py-5 md:py-8">
+  <header class="card mb-5">
+    <div class="card-title">
+      <span><i class="fas fa-truck-fast mr-2 text-blue-400"></i>Flowin Operations Suite</span>
+      <span class="text-[10px] text-slate-400">Launcher v1</span>
+    </div>
+    <div class="p-5 md:p-7">
+      <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
+        <div>
+          <h1 class="text-3xl md:text-5xl font-black tracking-tight">Flowin</h1>
+          <p class="text-[color:var(--muted)] mt-2 max-w-3xl">
+            Local browser launcher for Flowin modules. Only installed modules are shown when a manifest is available.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button class="btn btn-blue" onclick="loadModules(true)"><i class="fas fa-rotate"></i>Refresh Modules</button>
+          <button class="btn btn-slate" onclick="openManifestHelp()"><i class="fas fa-file-code"></i>Manifest Help</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="grid grid-cols-1 xl:grid-cols-12 gap-5">
+    <section class="card xl:col-span-8 min-h-[520px]">
+      <div class="card-title">
+        <span><i class="fas fa-grip mr-2 text-emerald-400"></i>Installed Modules</span>
+        <span id="moduleCount" class="text-[10px] text-slate-400">Scanning...</span>
+      </div>
+      <div class="p-4">
+        <div id="moduleGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        <div id="emptyState" class="hidden rounded-2xl border border-dashed border-slate-600 p-8 text-center">
+          <div class="text-4xl mb-3 text-slate-500"><i class="fas fa-box-open"></i></div>
+          <h2 class="text-xl font-black mb-2">No modules found</h2>
+          <p class="text-[color:var(--muted)] max-w-xl mx-auto">
+            Add a <code>mods/manifest.json</code> file or place modules in the expected paths. Browser security may block automatic folder scanning when opened directly as a local file.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <aside class="card xl:col-span-4">
+      <div class="card-title">
+        <span><i class="fas fa-signal mr-2 text-purple-400"></i>Suite Status</span>
+        <span class="text-[10px] text-slate-400">Local Only</span>
+      </div>
+      <div class="p-4 space-y-4">
+        <div class="rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)] p-4">
+          <div class="label">Module Source</div>
+          <div id="sourceStatus" class="text-lg font-black">Checking manifest...</div>
+          <p id="sourceNote" class="small mt-1"></p>
+        </div>
+        <div class="rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)] p-4">
+          <div class="label">Privacy</div>
+          <p class="small">
+            This launcher does not transmit data. It only opens local module files or links defined in the manifest.
+          </p>
+        </div>
+        <div class="rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)] p-4">
+          <div class="label">Expected Structure</div>
+<pre class="text-xs overflow-auto text-slate-300">Flowin/
+├── index.html
+└── mods/
+    ├── manifest.json
+    ├── IBCL.html
+    └── ShiftLog.html</pre>
+        </div>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<div class="menu">
+  <div id="menuPanel" class="menu-panel hidden space-y-3">
+    <div class="text-xs uppercase tracking-wider font-black text-slate-400">Settings</div>
+    <button class="btn btn-slate w-full" onclick="toggleTheme()"><i class="fas fa-adjust"></i><span id="themeText">Toggle Light Mode</span></button>
+    <button class="btn btn-slate w-full" onclick="loadModules(true)"><i class="fas fa-rotate"></i>Refresh Modules</button>
+    <button class="btn btn-slate w-full" onclick="openManifestHelp()"><i class="fas fa-file-code"></i>Manifest Help</button>
+    <button class="btn btn-slate w-full" onclick="openAbout()"><i class="fas fa-circle-info"></i>About / Version</button>
+    <button class="btn btn-slate w-full" onclick="toggleMenu()"><i class="fas fa-chevron-left"></i>Close Menu</button>
+  </div>
+  <button class="btn btn-slate h-11 w-11 rounded-full p-0" onclick="toggleMenu()" title="Settings"><i class="fas fa-bars"></i></button>
+</div>
+
+<div class="watermark" onclick="openAbout()">branasen</div>
+<div id="toast" class="toast">Done.</div>
+
+<div id="aboutModal" class="about" onclick="if(event.target.id==='aboutModal')closeAbout()">
+  <div class="about-card">
+    <div class="card-title">
+      <span><i class="fas fa-truck-fast mr-2 text-blue-400"></i>Flowin Launcher</span>
+      <button onclick="closeAbout()" class="text-slate-400 hover:text-white"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="p-5 space-y-3 text-sm">
+      <h2 class="text-2xl font-black">Flowin Launcher v1</h2>
+      <p class="text-[color:var(--muted)]">A client-side landing page for launching installed Flowin modules.</p>
+      <div class="rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)] p-3">
+        <div class="font-black mb-1">Credits</div>
+        <p>Designed and developed by <strong>branasen</strong>.</p>
+        <p>GitHub: <strong>yung-megafone</strong>.</p>
+      </div>
+      <div class="rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)] p-3">
+        <div class="font-black mb-1">Dynamic Modules</div>
+        <p>Best results use <code>mods/manifest.json</code>. Without a manifest, the launcher attempts a limited scan of known module paths where the browser allows local file checks.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="manifestModal" class="about" onclick="if(event.target.id==='manifestModal')closeManifestHelp()">
+  <div class="about-card">
+    <div class="card-title">
+      <span><i class="fas fa-file-code mr-2 text-emerald-400"></i>Manifest Help</span>
+      <button onclick="closeManifestHelp()" class="text-slate-400 hover:text-white"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="p-5 space-y-3 text-sm">
+      <p class="text-[color:var(--muted)]">Create this file beside the launcher:</p>
+<pre class="rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)] p-3 text-xs overflow-auto">mods/manifest.json</pre>
+      <p class="text-[color:var(--muted)]">Example:</p>
+<pre class="rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)] p-3 text-xs overflow-auto">{
+  "modules": [
+    {
+      "id": "ibcl",
+      "name": "IBCL",
+      "version": "v2",
+      "type": "Dashboard",
+      "description": "Inbound carton loss and projection dashboard.",
+      "path": "mods/IBCL.html",
+      "icon": "fa-chart-line",
+      "accent": "blue",
+      "status": "Installed"
+    },
+    {
+      "id": "shiftlog",
+      "name": "ShiftLog",
+      "version": "v1",
+      "type": "Handoff",
+      "description": "Flow Team shift handoff note generator.",
+      "path": "mods/ShiftLog.html",
+      "icon": "fa-clipboard-list",
+      "accent": "green",
+      "status": "Installed"
+    }
+  ]
+}</pre>
+    </div>
+  </div>
+</div>
+
+<script>
+const SETTINGS_KEY="flowin_launcher_v1";
+const KNOWN_MODULES=[
+  {id:"ibcl",name:"IBCL",version:"v2",type:"Dashboard",description:"Inbound carton loss and projection dashboard.",path:"mods/IBCL.html",icon:"fa-chart-line",accent:"blue",status:"Detected"},
+  {id:"shiftlog",name:"ShiftLog",version:"v1",type:"Handoff",description:"Flow Team shift handoff note generator.",path:"mods/ShiftLog.html",icon:"fa-clipboard-list",accent:"green",status:"Detected"},
+  {id:"metrics",name:"Metrics",version:"v1",type:"Dashboard",description:"Operational metrics module.",path:"mods/Metrics.html",icon:"fa-gauge-high",accent:"purple",status:"Detected"},
+  {id:"clipit",name:"ClipIt",version:"v1",type:"Userscript",description:"Quick-copy ticket helper documentation.",path:"mods/ClipIt.html",icon:"fa-copy",accent:"slate",status:"Detected"}
+];
+
+function qs(id){return document.getElementById(id)}
+function toast(msg){const t=qs("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
+function iconColor(accent){
+  return {blue:"#2563eb",green:"#059669",purple:"#7c3aed",red:"#dc2626",orange:"#ea580c",slate:"#334155"}[accent]||"#2563eb";
+}
+function escapeHtml(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function renderModules(modules,source){
+  const grid=qs("moduleGrid"), empty=qs("emptyState"), count=qs("moduleCount");
+  grid.innerHTML="";
+  if(!modules.length){empty.classList.remove("hidden");count.textContent="0 modules";return}
+  empty.classList.add("hidden");
+  count.textContent=`${modules.length} module${modules.length===1?"":"s"}`;
+  modules.forEach(m=>{
+    const div=document.createElement("div");
+    div.className="module-card";
+    const color=iconColor(m.accent);
+    div.innerHTML=`
+      <div class="relative z-10 flex items-start gap-3">
+        <div class="module-icon" style="background:${color}"><i class="fas ${escapeHtml(m.icon||"fa-cube")}"></i></div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between gap-2">
+            <h3 class="text-xl font-black truncate">${escapeHtml(m.name)}</h3>
+            <span class="badge">${escapeHtml(m.version||"")}</span>
+          </div>
+          <div class="flex flex-wrap gap-1 mt-1">
+            <span class="badge">${escapeHtml(m.type||"Module")}</span>
+            <span class="badge">${escapeHtml(m.status||source)}</span>
+          </div>
+          <p class="text-sm text-slate-300 mt-3 min-h-[42px]">${escapeHtml(m.description||"Flowin module.")}</p>
+          <div class="flex flex-wrap gap-2 mt-4">
+            <button class="btn btn-blue" onclick="openModule('${escapeHtml(m.path)}')"><i class="fas fa-arrow-up-right-from-square"></i>Open</button>
+            <button class="btn btn-slate" onclick="copyPath('${escapeHtml(m.path)}')"><i class="fas fa-copy"></i>Path</button>
+          </div>
+        </div>
+      </div>`;
+    grid.appendChild(div);
+  });
+}
+function openModule(path){window.open(path,"_blank")}
+function copyPath(path){
+  if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(path).then(()=>toast("Path copied."));
+  else toast(path);
+}
+async function exists(path){
+  try{
+    const r=await fetch(path,{method:"HEAD",cache:"no-store"});
+    return r.ok;
+  }catch(e){
+    try{
+      const r=await fetch(path,{cache:"no-store"});
+      return r.ok;
+    }catch(_){return false}
+  }
+}
+async function loadModules(manual=false){
+  qs("sourceStatus").textContent="Checking manifest...";
+  qs("sourceNote").textContent="Looking for mods/manifest.json.";
+
+  try{
+    const res=await fetch("mods/manifest.json",{cache:"no-store"});
+    if(res.ok){
+      const data=await res.json();
+      const modules=(data.modules||[]).filter(m=>m && m.name && m.path);
+      qs("sourceStatus").textContent="Manifest loaded";
+      qs("sourceNote").textContent="Showing modules defined in mods/manifest.json.";
+      renderModules(modules,"Manifest");
+      if(manual)toast("Manifest refreshed.");
+      return;
+    }
+  }catch(e){
+    // file:// commonly blocks fetch() from reading local JSON.
+    // Fall through to static fallback buttons.
+  }
+
+  // Static fallback for work laptops / file:// mode.
+  // These cards are shown even if the browser refuses to read manifest.json.
+  const fallback = [
+    {
+      id:"ibcl",
+      name:"IBCL",
+      version:"v2",
+      type:"Dashboard",
+      description:"Inbound carton loss and projection dashboard.",
+      path:"mods/IBCL.html",
+      icon:"fa-chart-line",
+      accent:"blue",
+      status:"Static"
+    },
+    {
+      id:"shiftlog",
+      name:"ShiftLog",
+      version:"v1",
+      type:"Handoff",
+      description:"Flow Team shift handoff note generator.",
+      path:"mods/ShiftLog.html",
+      icon:"fa-clipboard-list",
+      accent:"green",
+      status:"Static"
+    }
+  ];
+
+  qs("sourceStatus").textContent="Static fallback mode";
+  qs("sourceNote").textContent="Manifest could not be read, likely because this is running from file://. Showing default local module links.";
+  renderModules(fallback,"Static");
+  if(manual)toast("Static module links loaded.");
+}
+function toggleTheme(){document.body.classList.toggle("light");updateThemeText();saveSettings()}
+function updateThemeText(){qs("themeText").textContent=document.body.classList.contains("light")?"Toggle Dark Mode":"Toggle Light Mode"}
+function saveSettings(){localStorage.setItem(SETTINGS_KEY,JSON.stringify({theme:document.body.classList.contains("light")?"light":"dark"}))}
+function loadSettings(){try{const s=JSON.parse(localStorage.getItem(SETTINGS_KEY)||"{}");document.body.classList.toggle("light",s.theme==="light")}catch(e){}updateThemeText()}
+function toggleMenu(){qs("menuPanel").classList.toggle("hidden")}
+function openAbout(){qs("aboutModal").classList.add("show")}
+function closeAbout(){qs("aboutModal").classList.remove("show")}
+function openManifestHelp(){qs("manifestModal").classList.add("show")}
+function closeManifestHelp(){qs("manifestModal").classList.remove("show")}
+document.addEventListener("DOMContentLoaded",()=>{loadSettings();loadModules(false)});
+</script>
+</body>
+</html>
