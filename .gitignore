@@ -1,0 +1,45 @@
+# ===========================
+# Operating System / Editors
+# ===========================
+
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+.vscode/
+.idea/
+
+# ===========================
+# Local Notes / Private Files
+# ===========================
+
+*.local.*
+local/
+private/
+secrets/
+
+*.env
+.env
+
+# ===========================
+# Development Archives
+# ===========================
+
+archive/
+Archive/
+*.7z
+
+# ===========================
+# Temporary Exports
+# ===========================
+
+*.tmp
+*.bak
+*.zip
+
+# ===========================
+# Python
+# ===========================
+
+__pycache__/
+*.py[cod]
