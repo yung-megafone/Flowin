@@ -489,6 +489,10 @@ Safety / confidentiality note:
 <select class="ibcl-graph-select" id="sampleIntervalSelect" onchange="setProjectionSampleInterval(this.value)">
 <option value="5">5m</option><option value="10">10m</option><option selected="" value="15">15m</option><option value="30">30m</option><option value="60">1h</option>
 </select></label>
+<label class="text-[11px] font-bold text-slate-500 flex items-center gap-1"><input id="sampleTimeOverrideToggle" onchange="updateSampleTimeOverrideUI()" type="checkbox"/><span data-i18n="sample_time_override_label">Time Override</span></label>
+<label class="text-[11px] font-bold text-slate-500 flex items-center gap-1"><span data-i18n="sample_time_label">Sample Time</span>
+<input class="ibcl-graph-select w-[88px] opacity-50 cursor-not-allowed" disabled id="sampleTimeInput" type="time"/>
+</label>
 </div>
 <div class="text-[11px] text-slate-500 font-semibold"><span data-i18n="shift_window_label">Shift window:</span> <span id="shiftWindowDisplay">—</span></div>
 <div class="flex gap-2 flex-wrap">
